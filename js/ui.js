@@ -15,10 +15,25 @@ let canvas;
 let ctx;
 const pathPoints = [];
 
+// Keyboard boundaries for capture restriction
+let keyboardBoundary = {
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  padding: 10, // Padding in pixels around keyboard
+};
+
 // Initialize UI elements
 function initUI() {
   // Set up canvas for path visualization
   setupCanvas();
+
+  // Calculate keyboard boundaries
+  calculateKeyboardBoundaries();
+
+  // Visualize keyboard boundary (helpful during development)
+  visualizeKeyboardBoundary();
 
   // Set up mode toggle button
   setupModeToggle();
@@ -34,6 +49,71 @@ function initUI() {
 
   // Listen for mouse position updates (from input.js)
   window.addEventListener("mousePositionUpdate", handleMousePositionUpdate);
+
+  // Listen for window resize to recalculate keyboard boundaries
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      calculateKeyboardBoundaries();
+      visualizeKeyboardBoundary();
+    }, 250)
+  );
+}
+
+// Calculate keyboard boundaries for limiting capture area
+function calculateKeyboardBoundaries() {
+  const keyboardElement = elements.keyboard;
+  if (!keyboardElement) return;
+
+  const rect = keyboardElement.getBoundingClientRect();
+  const padding = keyboardBoundary.padding;
+
+  keyboardBoundary = {
+    top: rect.top - padding,
+    left: rect.left - padding,
+    right: rect.right + padding,
+    bottom: rect.bottom + padding,
+    padding: padding,
+  };
+
+  console.log("Keyboard boundaries calculated:", keyboardBoundary);
+}
+
+// Visualize the keyboard boundary
+function visualizeKeyboardBoundary() {
+  // First remove any existing boundary visualization
+  const existingBoundary = document.querySelector(".keyboard-boundary");
+  if (existingBoundary) {
+    existingBoundary.remove();
+  }
+
+  // Create a boundary visualization element
+  const boundaryElement = document.createElement("div");
+  boundaryElement.className = "keyboard-boundary";
+  elements.keyboard.appendChild(boundaryElement);
+}
+
+// Check if a point is within the keyboard boundary
+function isWithinKeyboardBoundary(x, y) {
+  return (
+    x >= keyboardBoundary.left &&
+    x <= keyboardBoundary.right &&
+    y >= keyboardBoundary.top &&
+    y <= keyboardBoundary.bottom
+  );
+}
+
+// Debounce function for resize events
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 // Set up canvas for path visualization
@@ -68,10 +148,9 @@ function clearPath() {
 
 // Draw the current path
 function drawPath() {
-  if (!ctx) return;
+  if (!ctx || pathPoints.length < 2) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (pathPoints.length < 2) return;
 
   ctx.beginPath();
   ctx.lineWidth = 3;
@@ -88,8 +167,12 @@ function drawPath() {
 // Handle mouse position updates (from input.js)
 function handleMousePositionUpdate(event) {
   const { x, y } = event.detail;
-  pathPoints.push({ x, y });
-  drawPath();
+
+  // Only add points if within keyboard boundary
+  if (isWithinKeyboardBoundary(x, y)) {
+    pathPoints.push({ x, y });
+    drawPath();
+  }
 }
 
 // Set up toggle button for test/Azure mode
@@ -102,7 +185,7 @@ function setupModeToggle() {
   modeToggle.style.backgroundColor = "#4CAF50";
   modeToggle.style.color = "white";
   modeToggle.style.border = "none";
-  modeToggle.style.borderRadius = "4px";
+  modeToggle.style.borderRadius = "5px";
   modeToggle.style.cursor = "pointer";
 
   elements.captureToggle.insertAdjacentElement("afterend", modeToggle);
@@ -138,6 +221,9 @@ function setupCaptureToggle() {
         const sequence = state.swipeSequence.join("");
         const suggestedWords = await getPredictionsBasedOnMode(sequence);
         displaySuggestions(suggestedWords);
+
+        // Clear the path after getting predictions
+        setTimeout(() => clearPath(), 300);
       }
     }
 
@@ -150,8 +236,8 @@ function setupAccessibilityHelp() {
   elements.accessibilityControls.insertAdjacentHTML(
     "beforebegin",
     `
-    <div id="accessibilityHelp" style="margin: 15px 0; padding: 10px; background: #f0f7ff; border-radius: 5px; max-width: 600px;">
-      <h3 style="margin-top: 0;">Accessibility Settings</h3>
+    <div id="accessibilityHelp">
+      <h3>Accessibility Settings</h3>
       <p><strong>Dwell Time:</strong> How long (in milliseconds) you need to hover over a key before it's selected. 
          Increase this if you're making accidental selections, decrease if selection feels too slow.</p>
       <p><strong>Movement Tolerance:</strong> How much your cursor can move while still counting as "hovering" on the same spot. 
@@ -167,4 +253,9 @@ function updateUIValues() {
   elements.toleranceValue.textContent = settings.movementTolerance;
 }
 
-export { initUI, clearPath };
+export {
+  initUI,
+  clearPath,
+  isWithinKeyboardBoundary,
+  calculateKeyboardBoundaries,
+};

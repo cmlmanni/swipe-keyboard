@@ -8,7 +8,7 @@ import {
   addKeyToSequence,
   updateDebugInfo,
 } from "./core.js";
-import { clearPath } from "./ui.js";
+import { clearPath, isWithinKeyboardBoundary } from "./ui.js";
 
 // State for input tracking
 const inputState = {
@@ -88,58 +88,63 @@ function initDwellHandlers() {
 
 // Handle mouse movement for dwell functionality
 function handleMouseMovement(event) {
-  // Update path if capturing (handled in UI module)
-  if (state.isCapturing) {
+  const x = event.clientX;
+  const y = event.clientY;
+
+  // Only process if within keyboard boundary or if we're already capturing
+  if (state.isCapturing && isWithinKeyboardBoundary(x, y)) {
+    // Update path if capturing (handled in UI module)
     window.dispatchEvent(
       new CustomEvent("mousePositionUpdate", {
-        detail: { x: event.clientX, y: event.clientY },
+        detail: { x, y },
       })
     );
-  }
 
-  // Calculate movement distance
-  const distance = Math.sqrt(
-    Math.pow(event.clientX - inputState.lastPosition.x, 2) +
-      Math.pow(event.clientY - inputState.lastPosition.y, 2)
-  );
+    // Calculate movement distance
+    const distance = Math.sqrt(
+      Math.pow(x - inputState.lastPosition.x, 2) +
+        Math.pow(y - inputState.lastPosition.y, 2)
+    );
 
-  // Update last position
-  inputState.lastPosition.x = event.clientX;
-  inputState.lastPosition.y = event.clientY;
+    // Update last position
+    inputState.lastPosition.x = x;
+    inputState.lastPosition.y = y;
 
-  // Get element under cursor
-  const targetElement = document.elementFromPoint(event.clientX, event.clientY);
+    // Get element under cursor
+    const targetElement = document.elementFromPoint(x, y);
 
-  // If movement is greater than tolerance or target changed, reset dwell timer
-  if (
-    distance > settings.movementTolerance ||
-    targetElement !== inputState.currentDwellElement
-  ) {
-    clearTimeout(inputState.dwellTimer);
-    inputState.currentDwellElement = targetElement;
-
-    // Only process keys during active capture
+    // If movement is greater than tolerance or target changed, reset dwell timer
     if (
-      state.isCapturing &&
-      targetElement &&
-      targetElement.classList.contains("key")
+      distance > settings.movementTolerance ||
+      targetElement !== inputState.currentDwellElement
     ) {
-      inputState.dwellTimer = setTimeout(() => {
-        const letter = targetElement.getAttribute("data-letter");
-        highlightKey(targetElement);
+      clearTimeout(inputState.dwellTimer);
+      inputState.currentDwellElement = targetElement;
 
-        // Flash effect to indicate selection
-        targetElement.style.transition = "background-color 0.1s";
-        const originalColor = targetElement.style.backgroundColor;
-        targetElement.style.backgroundColor = "#ffcc00";
+      // Only process keys during active capture
+      if (
+        state.isCapturing &&
+        targetElement &&
+        targetElement.classList.contains("key")
+      ) {
+        inputState.dwellTimer = setTimeout(() => {
+          const letter = targetElement.getAttribute("data-letter");
+          highlightKey(targetElement);
 
-        setTimeout(() => {
-          targetElement.style.backgroundColor = originalColor;
-        }, 200);
+          // Flash effect to indicate selection
+          targetElement.classList.add("dwell-selected");
+          setTimeout(() => {
+            targetElement.classList.remove("dwell-selected");
+          }, 400);
 
-        addKeyToSequence(letter);
-      }, settings.dwellTime);
+          addKeyToSequence(letter);
+        }, settings.dwellTime);
+      }
     }
+  } else {
+    // If outside keyboard boundary, clear dwell timer
+    clearTimeout(inputState.dwellTimer);
+    inputState.currentDwellElement = null;
   }
 }
 
