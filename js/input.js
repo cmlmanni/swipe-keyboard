@@ -9,12 +9,14 @@ import {
   updateDebugInfo,
 } from "./core.js";
 import { clearPath, isWithinKeyboardBoundary } from "./ui.js";
+import { getPredictionsBasedOnMode, displaySuggestions } from "./prediction.js";
 
 // State for input tracking
 const inputState = {
   dwellTimer: null,
   currentDwellElement: null,
   lastPosition: { x: 0, y: 0 },
+  predictionDebounceTimer: null,
 };
 
 // Initialize input handlers
@@ -140,6 +142,17 @@ function handleMouseMovement(event) {
           addKeyToSequence(letter);
         }, settings.dwellTime);
       }
+    }
+
+    // After adding a key to sequence or when moving over keys
+    if (state.isCapturing && state.swipeSequence.length > 0) {
+      // Debounce prediction requests to avoid too many calls
+      clearTimeout(inputState.predictionDebounceTimer);
+      inputState.predictionDebounceTimer = setTimeout(async () => {
+        const sequence = state.swipeSequence.join("");
+        const suggestedWords = await getPredictionsBasedOnMode(sequence);
+        displaySuggestions(suggestedWords);
+      }, 300);
     }
   } else {
     // If outside keyboard boundary, clear dwell timer

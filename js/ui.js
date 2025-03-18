@@ -200,7 +200,8 @@ function setupModeToggle() {
   });
 }
 
-// Set up capture toggle button
+// Modify the setupCaptureToggle function
+
 function setupCaptureToggle() {
   elements.captureToggle.addEventListener("click", async function () {
     state.isCapturing = !state.isCapturing;
@@ -211,19 +212,21 @@ function setupCaptureToggle() {
       state.captureMethod = "Hover/Dwell";
       this.textContent = "Stop Capturing";
       clearPath();
+      // Clear suggestions at start of new capture
+      elements.wordSuggestionsContainer.innerHTML = "";
     } else {
       resetHighlighting();
       this.textContent = "Start Capturing";
       console.log("Final Swipe Sequence:", state.swipeSequence.join(""));
 
-      // Get word predictions when capturing stops
+      // Get final word predictions when capturing stops
       if (state.swipeSequence.length > 0) {
         const sequence = state.swipeSequence.join("");
         const suggestedWords = await getPredictionsBasedOnMode(sequence);
         displaySuggestions(suggestedWords);
 
-        // Clear the path after getting predictions
-        setTimeout(() => clearPath(), 300);
+        // Keep the path visible slightly longer to give visual feedback
+        setTimeout(() => clearPath(), 500);
       }
     }
 

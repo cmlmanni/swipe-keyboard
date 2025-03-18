@@ -133,6 +133,10 @@ function selectWord(word) {
   state.swipeSequence = [];
   elements.sequenceDisplay.innerText = "";
   elements.wordSuggestionsContainer.innerHTML = "";
+
+  // Import clearPath or access it through a module pattern
+  // For now, we'll add an event to notify UI module
+  window.dispatchEvent(new CustomEvent("wordSelected"));
 }
 
 // Get predictions based on current mode
