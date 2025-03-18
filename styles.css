@@ -28,6 +28,8 @@ h1 {
   user-select: none;
   font-size: 1.2em;
   transition: background-color 0.1s;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .key.active {
@@ -68,4 +70,94 @@ h1 {
 
 #captureToggle.active {
   background-color: #ff5722;
+}
+
+/* Add to your existing styles.css */
+
+#wordSuggestions {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.suggestion {
+  padding: 10px 15px;
+  background-color: #e1f5fe;
+  color: #0277bd;
+  border: 1px solid #b3e5fc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.2s;
+}
+
+.suggestion:hover {
+  background-color: #4fc3f7;
+  color: white;
+}
+
+#outputArea {
+  width: 90%;
+  max-width: 600px;
+  min-height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 20px 0;
+  background-color: #fff;
+}
+
+#selectedWords {
+  font-size: 1.4em;
+  line-height: 1.5;
+  min-height: 1.5em;
+}
+
+#accessibilityControls {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  width: 90%;
+  max-width: 600px;
+}
+
+#accessibilityControls div {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+#accessibilityControls label {
+  margin-right: 10px;
+  width: 150px;
+}
+
+#accessibilityControls input {
+  margin-right: 10px;
+}
+
+/* Highlight to show current mode */
+#modeToggle {
+  transition: background-color 0.3s;
+}
+
+/* Flash effect for dwell selection */
+@keyframes dwellSelect {
+  0% {
+    background-color: #007acc;
+  }
+  50% {
+    background-color: #ffcc00;
+  }
+  100% {
+    background-color: #007acc;
+  }
+}
+
+.key.dwell-selected {
+  animation: dwellSelect 0.4s;
 }

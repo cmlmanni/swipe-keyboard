@@ -2,13 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Swipe Keyboard Prototype</title>
+    <title>Swipe Keyboard for MND Users</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>Swipe Keyboard Prototype</h1>
+    <h1>Swipe Keyboard for MND Users</h1>
     <button id="captureToggle">Start Capturing</button>
-    <p></p>
+
+    <!-- Word output area -->
+    <div id="outputArea">
+      <div id="selectedWords"></div>
+    </div>
+
+    <!-- Word suggestions -->
+    <div id="wordSuggestions"></div>
 
     <div id="keyboard">
       <!-- Row 1 -->
@@ -51,6 +58,28 @@
       <div>Complete sequence: <span id="completeSequence">None</span></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Add accessibility controls -->
+    <div id="accessibilityControls">
+      <div>
+        <label for="dwellTime">Dwell time (ms):</label>
+        <input
+          type="range"
+          id="dwellTime"
+          min="100"
+          max="2000"
+          step="100"
+          value="500"
+        />
+        <span id="dwellTimeValue">500ms</span>
+      </div>
+      <div>
+        <label for="tolerance">Movement tolerance:</label>
+        <input type="range" id="tolerance" min="1" max="10" value="3" />
+        <span id="toleranceValue">3</span>
+      </div>
+    </div>
+
+    <!-- Use type="module" for ES modules -->
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
