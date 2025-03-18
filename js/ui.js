@@ -8,7 +8,11 @@ import {
   resetSequence,
   updateDebugInfo,
 } from "./core.js";
-import { getPredictionsBasedOnMode, displaySuggestions } from "./prediction.js";
+import {
+  getPredictionsBasedOnMode,
+  displaySuggestions,
+  replaceLastWord,
+} from "./prediction.js";
 
 // Canvas for path visualization
 let canvas;
@@ -61,6 +65,16 @@ function initUI() {
 
   // Add continuous mode toggle
   setupContinuousMode();
+
+  // Listen for word selection to clear the path
+  window.addEventListener("wordSelected", () => {
+    clearPath();
+  });
+
+  // Listen for continuous mode path clearing
+  window.addEventListener("resetPathForContinuous", () => {
+    clearPath();
+  });
 }
 
 // Calculate keyboard boundaries for limiting capture area

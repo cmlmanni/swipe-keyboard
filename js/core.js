@@ -8,6 +8,8 @@ const state = {
   suggestedWords: [],
   useTestMode: true,
   continuousMode: false, // Add this line for continuous mode
+  lastSelectedWord: null, // Track the last selected word
+  lastSelectionIndex: null, // Track where in the text the word was added
 };
 
 // DOM element references

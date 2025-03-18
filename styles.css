@@ -107,19 +107,36 @@ h1 {
 
 /* Update the suggestions styling to make them more mobile-like */
 #wordSuggestions {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 15px 0;
+  align-items: center;
   justify-content: center;
-  min-height: 50px;
+  margin: 15px 0;
   width: 100%;
   max-width: 650px;
+  min-height: 60px;
   transition: all 0.3s ease;
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
-  padding: 10px;
+  padding: 10px 40px; /* Space for scroll buttons */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.suggestions-scroll-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  gap: 10px;
+  width: 100%;
+  padding: 5px 0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.suggestions-scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .suggestion {
@@ -132,6 +149,100 @@ h1 {
   font-size: 1em;
   transition: all 0.2s;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.suggestion:hover {
+  background-color: #4fc3f7;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Primary suggestion (first one) */
+.suggestion-primary {
+  background-color: #2196f3;
+  color: white;
+  font-weight: bold;
+  border-color: #1976d2;
+}
+
+/* Selected suggestion */
+.suggestion-selected {
+  background-color: #4caf50;
+  color: white;
+  border-color: #388e3c;
+}
+
+/* Scroll buttons */
+.scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.scroll-btn:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.scroll-left {
+  left: 5px;
+}
+
+.scroll-right {
+  right: 5px;
+}
+
+/* No suggestions message */
+.no-suggestions {
+  color: #757575;
+  font-style: italic;
+}
+
+/* Animation for auto-selection countdown */
+@keyframes pulseHighlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+  }
+}
+
+.suggestion-primary {
+  animation: pulseHighlight 1s infinite;
+}
+
+/* Fade effect for path disappearing */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.path-fade-out {
+  animation: fadeOut 0.5s forwards;
 }
 
 /* Add animation for new suggestions */
