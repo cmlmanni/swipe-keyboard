@@ -1,92 +1,17 @@
 // Word prediction functionality
 
 import { state, elements } from "./core.js";
+import { findBestMatches } from "./dictionary.js";
 
-// Common English words for testing
-const commonWords = {
-  QWE: ["queen", "question", "quest"],
-  ASD: ["ask", "aside", "assembly"],
-  WER: ["were", "west", "western"],
-  ERT: ["earth", "certain", "erupt"],
-  TY: ["try", "type", "typical"],
-  ASDF: ["asked", "assist", "assemble"],
-  QWERTY: ["qwerty"],
-  THE: ["the", "them", "they"],
-  AND: ["and", "android", "andrew"],
-  ING: ["ing", "ingot", "ingress"],
-  YOU: ["you", "young", "your"],
-  HELLO: ["hello", "hellos"],
-  WORLD: ["world", "worlds"],
-  HJ: ["hi", "him", "his"],
-  JK: ["joke", "jack", "just"],
-  FG: ["fog", "fig", "for"],
-  CV: ["cave", "cover", "civic"],
-  BN: ["been", "bin", "ban"],
-  TGB: ["tag", "toggle", "tight"],
-  YHN: ["yarn", "yawn", "young"],
-  TGHE: ["the", "they", "them"],
-  YUOU: ["you", "your", "yours"],
-};
-
-// Fuzzy matching function to find the closest patterns
-function findPredictions(sequence) {
-  // Direct match
-  if (commonWords[sequence]) {
-    return commonWords[sequence];
-  }
-
-  // Find closest match by calculating similarity
-  let bestMatch = [];
-  let highestSimilarity = 0;
-
-  for (const pattern in commonWords) {
-    // Calculate a simple similarity score
-    const similarity = calculateSimilarity(sequence, pattern);
-
-    if (similarity > highestSimilarity) {
-      highestSimilarity = similarity;
-      bestMatch = commonWords[pattern];
-    }
-  }
-
-  // If we found a good match, return it
-  if (highestSimilarity > 0.5) {
-    return bestMatch;
-  }
-
-  // Default predictions if no match found
-  return ["word", "text", "next"];
-}
-
-// Simple similarity calculation between two strings
-function calculateSimilarity(str1, str2) {
-  // Normalize strings for comparison
-  const s1 = str1.toUpperCase();
-  const s2 = str2.toUpperCase();
-
-  // Count matching characters
-  let matches = 0;
-  for (let i = 0; i < s1.length; i++) {
-    if (s2.includes(s1[i])) {
-      matches++;
-    }
-  }
-
-  // Length similarity factor
-  const lengthDiff = Math.abs(s1.length - s2.length);
-  const lengthFactor = 1 - lengthDiff / Math.max(s1.length, s2.length);
-
-  // Calculate final similarity score (0-1)
-  return (matches / Math.max(s1.length, s2.length)) * lengthFactor;
-}
-
-// Get predictions using the test dictionary
+// Get predictions using the local dictionary
 async function getPredictions(sequence) {
   // Simulate network delay for realism
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(findPredictions(sequence));
-    }, 300);
+      // Use the enhanced dictionary function
+      const results = findBestMatches(sequence);
+      resolve(results);
+    }, 100); // Faster response time for better UX
   });
 }
 
@@ -126,21 +51,31 @@ function displaySuggestions(words) {
 // Function to select a word from suggestions
 function selectWord(word) {
   const selectedWordsElement = elements.selectedWordsContainer;
+
+  // Add space automatically if not the first word
   selectedWordsElement.textContent +=
     (selectedWordsElement.textContent ? " " : "") + word;
 
-  // Clear the current sequence and suggestions
-  state.swipeSequence = [];
-  elements.sequenceDisplay.innerText = "";
-  elements.wordSuggestionsContainer.innerHTML = "";
-
-  // Import clearPath or access it through a module pattern
-  // For now, we'll add an event to notify UI module
-  window.dispatchEvent(new CustomEvent("wordSelected"));
+  // Check if we're in continuous mode
+  if (state.continuousMode) {
+    // Just clear sequence but keep capturing
+    state.swipeSequence = [];
+    elements.sequenceDisplay.innerText = "";
+    elements.wordSuggestionsContainer.innerHTML = "";
+    window.dispatchEvent(new CustomEvent("resetPathForContinuous"));
+  } else {
+    // Traditional behavior - clear everything
+    state.swipeSequence = [];
+    elements.sequenceDisplay.innerText = "";
+    elements.wordSuggestionsContainer.innerHTML = "";
+    window.dispatchEvent(new CustomEvent("wordSelected"));
+  }
 }
 
 // Get predictions based on current mode
 async function getPredictionsBasedOnMode(sequence) {
+  if (!sequence) return [];
+
   try {
     if (state.useTestMode) {
       return await getPredictions(sequence);
@@ -153,4 +88,18 @@ async function getPredictionsBasedOnMode(sequence) {
   }
 }
 
-export { getPredictionsBasedOnMode, displaySuggestions, selectWord };
+// New function for real-time predictions during swiping
+async function getRealtimePredictions() {
+  if (state.swipeSequence.length === 0) return;
+
+  const sequence = state.swipeSequence.join("");
+  const suggestedWords = await getPredictionsBasedOnMode(sequence);
+  displaySuggestions(suggestedWords);
+}
+
+export {
+  getPredictionsBasedOnMode,
+  displaySuggestions,
+  selectWord,
+  getRealtimePredictions,
+};

@@ -9,7 +9,7 @@ import {
   updateDebugInfo,
 } from "./core.js";
 import { clearPath, isWithinKeyboardBoundary } from "./ui.js";
-import { getPredictionsBasedOnMode, displaySuggestions } from "./prediction.js";
+import { getRealtimePredictions } from "./prediction.js";
 
 // State for input tracking
 const inputState = {
@@ -45,7 +45,10 @@ function initTouchHandlers() {
     if (target && target.classList.contains("key")) {
       const letter = target.getAttribute("data-letter");
       highlightKey(target);
-      addKeyToSequence(letter);
+      if (addKeyToSequence(letter)) {
+        // If sequence was changed, update real-time predictions
+        debounceRealtimePredictions();
+      }
     }
     event.preventDefault();
   });
@@ -58,6 +61,14 @@ function initTouchHandlers() {
   });
 }
 
+// Function to debounce real-time predictions
+function debounceRealtimePredictions() {
+  clearTimeout(inputState.predictionDebounceTimer);
+  inputState.predictionDebounceTimer = setTimeout(() => {
+    getRealtimePredictions();
+  }, 200); // Debounce time in ms
+}
+
 // Mouse hover event handlers
 function initMouseHoverHandlers() {
   document.querySelectorAll(".key").forEach((key) => {
@@ -65,7 +76,10 @@ function initMouseHoverHandlers() {
       if (!state.isCapturing) return;
       const letter = this.getAttribute("data-letter");
       highlightKey(this);
-      addKeyToSequence(letter);
+      if (addKeyToSequence(letter)) {
+        // If sequence was changed, update real-time predictions
+        debounceRealtimePredictions();
+      }
     });
   });
 }
@@ -139,20 +153,12 @@ function handleMouseMovement(event) {
             targetElement.classList.remove("dwell-selected");
           }, 400);
 
-          addKeyToSequence(letter);
+          // If sequence was changed, update real-time predictions
+          if (addKeyToSequence(letter)) {
+            debounceRealtimePredictions();
+          }
         }, settings.dwellTime);
       }
-    }
-
-    // After adding a key to sequence or when moving over keys
-    if (state.isCapturing && state.swipeSequence.length > 0) {
-      // Debounce prediction requests to avoid too many calls
-      clearTimeout(inputState.predictionDebounceTimer);
-      inputState.predictionDebounceTimer = setTimeout(async () => {
-        const sequence = state.swipeSequence.join("");
-        const suggestedWords = await getPredictionsBasedOnMode(sequence);
-        displaySuggestions(suggestedWords);
-      }, 300);
     }
   } else {
     // If outside keyboard boundary, clear dwell timer

@@ -58,6 +58,9 @@ function initUI() {
       visualizeKeyboardBoundary();
     }, 250)
   );
+
+  // Add continuous mode toggle
+  setupContinuousMode();
 }
 
 // Calculate keyboard boundaries for limiting capture area
@@ -254,6 +257,45 @@ function setupAccessibilityHelp() {
 function updateUIValues() {
   elements.dwellTimeValue.textContent = `${settings.dwellTime}ms`;
   elements.toleranceValue.textContent = settings.movementTolerance;
+}
+
+function setupContinuousMode() {
+  const continuousModeToggle = document.createElement("button");
+  continuousModeToggle.id = "continuousModeToggle";
+  continuousModeToggle.textContent = "Continuous Mode: Off";
+  continuousModeToggle.style.margin = "10px";
+  continuousModeToggle.style.padding = "8px 12px";
+  continuousModeToggle.style.backgroundColor = "#9e9e9e";
+  continuousModeToggle.style.color = "white";
+  continuousModeToggle.style.border = "none";
+  continuousModeToggle.style.borderRadius = "5px";
+  continuousModeToggle.style.cursor = "pointer";
+
+  // Insert after the mode toggle
+  if (document.getElementById("modeToggle")) {
+    document
+      .getElementById("modeToggle")
+      .insertAdjacentElement("afterend", continuousModeToggle);
+  } else {
+    elements.captureToggle.insertAdjacentElement(
+      "afterend",
+      continuousModeToggle
+    );
+  }
+
+  // Toggle continuous mode
+  continuousModeToggle.addEventListener("click", function () {
+    state.continuousMode = !state.continuousMode;
+    this.textContent = state.continuousMode
+      ? "Continuous Mode: On"
+      : "Continuous Mode: Off";
+    this.style.backgroundColor = state.continuousMode ? "#673ab7" : "#9e9e9e";
+  });
+
+  // Listen for special events for continuous mode
+  window.addEventListener("resetPathForContinuous", () => {
+    clearPath();
+  });
 }
 
 export {

@@ -7,6 +7,7 @@ const state = {
   captureMethod: "None",
   suggestedWords: [],
   useTestMode: true,
+  continuousMode: false, // Add this line for continuous mode
 };
 
 // DOM element references
