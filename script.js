@@ -59,6 +59,7 @@ captureToggle.addEventListener("click", function () {
   }
 
   updateDebugInfo();
+  clearPath();
 });
 
 // Touch Events
@@ -112,3 +113,47 @@ document.querySelectorAll(".key").forEach((key) => {
 
 // Initialize debug display
 updateDebugInfo();
+
+// Create canvas for path visualization
+const canvas = document.createElement("canvas");
+canvas.id = "pathCanvas";
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+canvas.style.position = "absolute";
+canvas.style.top = "0";
+canvas.style.left = "0";
+canvas.style.pointerEvents = "none"; // Don't capture mouse events
+canvas.style.zIndex = "1000";
+document.body.appendChild(canvas);
+
+const ctx = canvas.getContext("2d");
+const pathPoints = [];
+
+// Clear path visualization
+function clearPath() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  pathPoints.length = 0;
+}
+
+// Update visualization when mouse moves
+document.addEventListener("mousemove", function (event) {
+  if (isCapturing) {
+    pathPoints.push({ x: event.clientX, y: event.clientY });
+
+    // Draw path
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#ff5722";
+
+    for (let i = 0; i < pathPoints.length; i++) {
+      if (i === 0) {
+        ctx.moveTo(pathPoints[i].x, pathPoints[i].y);
+      } else {
+        ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+      }
+    }
+
+    ctx.stroke();
+  }
+});
