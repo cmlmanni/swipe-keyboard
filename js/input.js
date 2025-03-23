@@ -33,12 +33,17 @@ const backspaceState = {
 
 // Initialize input handlers
 function initInputHandlers() {
-  // Touch input
+  // Choose only one primary input method:
+
+  // Touch input (good for mobile)
   initTouchHandlers();
-  // Mouse hover input
-  initMouseHoverHandlers();
-  // Dwell input
+
+  // COMMENT OUT hover input to prevent duplicates
+  // initMouseHoverHandlers();
+
+  // Dwell input (good for accessibility)
   initDwellHandlers();
+
   // Initialize action key handlers (includes backspace)
   initActionKeysHandlers();
 }
