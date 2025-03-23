@@ -17,6 +17,7 @@ const inputState = {
   currentDwellElement: null,
   lastPosition: { x: 0, y: 0 },
   predictionDebounceTimer: null,
+  guardPeriod: false,
 };
 
 // Initialize input handlers
@@ -136,8 +137,28 @@ function initDwellHandlers() {
   document.addEventListener("mousemove", handleMouseMovement);
 }
 
+// Add this function to clear all dwell timers
+function clearDwellTimers() {
+  clearTimeout(inputState.dwellTimer);
+  inputState.currentDwellElement = null;
+
+  // Also reset highlighted keys
+  document.querySelectorAll(".key.active").forEach((key) => {
+    key.classList.remove("active");
+  });
+
+  // Add a short guard period to prevent immediate re-capture
+  inputState.guardPeriod = true;
+  setTimeout(() => {
+    inputState.guardPeriod = false;
+  }, 500); // 500ms guard period
+}
+
 // Handle mouse movement for dwell functionality
 function handleMouseMovement(event) {
+  // Skip during guard period
+  if (inputState.guardPeriod) return;
+
   const x = event.clientX;
   const y = event.clientY;
 
@@ -201,4 +222,7 @@ function handleMouseMovement(event) {
   }
 }
 
-export { initInputHandlers };
+export {
+  initInputHandlers,
+  clearDwellTimers, // Add this export
+};

@@ -2,6 +2,7 @@
 
 import { state, elements, resetSequence } from "./core.js";
 import { findBestMatches } from "./dictionary.js";
+import { clearDwellTimers } from "./input.js";
 
 // Keeps track of recent words for context
 const contextHistory = {
@@ -181,6 +182,9 @@ function updateScrollButtonVisibility(container, leftBtn, rightBtn) {
 function selectWord(word) {
   // Clear any pending auto-selection
   clearTimeout(autoSelectionTimer);
+
+  // NEW: Force clear any pending dwell timers
+  clearDwellTimers();
 
   const selectedWordsElement = elements.selectedWordsContainer;
 
