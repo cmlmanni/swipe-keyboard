@@ -107,6 +107,33 @@ h1 {
   background-color: #c82333;
 }
 
+/* Update the CSS class in styles.css */
+.key-enter {
+  flex: 3;
+  background-color: #3f51b5; /* Different blue color for Enter */
+}
+
+.key-enter:hover {
+  background-color: #303f9f;
+}
+
+.key-enter.active {
+  animation: enterPress 0.15s;
+}
+
+@keyframes enterPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+    background-color: #303f9f;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Control buttons */
 #captureToggle,
 #modeToggle {
