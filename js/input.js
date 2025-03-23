@@ -44,6 +44,18 @@ function initTouchHandlers() {
   elements.keyboard.addEventListener("touchstart", function (event) {
     if (!state.isCapturing) return;
     state.captureMethod = "Touch";
+
+    // Clear the previous path
+    window.dispatchEvent(new CustomEvent("clearSwipePath"));
+
+    // Add first point to the path
+    const touch = event.touches[0];
+    window.dispatchEvent(
+      new CustomEvent("mousePositionUpdate", {
+        detail: { x: touch.clientX, y: touch.clientY },
+      })
+    );
+
     updateDebugInfo();
     event.preventDefault();
   });
@@ -51,6 +63,14 @@ function initTouchHandlers() {
   elements.keyboard.addEventListener("touchmove", function (event) {
     if (!state.isCapturing) return;
     const touch = event.touches[0];
+
+    // Add point to the path
+    window.dispatchEvent(
+      new CustomEvent("mousePositionUpdate", {
+        detail: { x: touch.clientX, y: touch.clientY },
+      })
+    );
+
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
     if (target && target.classList.contains("key")) {
       const letter = target.getAttribute("data-letter");
@@ -67,6 +87,10 @@ function initTouchHandlers() {
     if (!state.isCapturing) return;
     console.log("Final Swipe Sequence:", state.swipeSequence.join(""));
     updateDebugInfo();
+
+    // Add fade-out animation to the path
+    window.dispatchEvent(new CustomEvent("fadeSwipePath"));
+
     event.preventDefault();
   });
 }

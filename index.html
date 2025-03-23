@@ -7,15 +7,35 @@
   </head>
   <body>
     <h1>Swipe Keyboard for MND Users</h1>
-    <button id="captureToggle">Start Capturing</button>
+
+    <!-- Control buttons in a single row -->
+    <div id="controlButtons">
+      <button id="captureToggle">Start Capturing</button>
+      <!-- <button id="continuousModeToggle">Enable Continuous Mode</button>
+      <button id="predictionOrderToggle">Swap Prediction Order</button> -->
+      <!-- <button id="helpToggle" aria-expanded="false">Show Help ▼</button> -->
+    </div>
 
     <!-- Word output area -->
     <div id="outputArea">
       <div id="selectedWords"></div>
     </div>
 
+    <!-- Sentence suggestions (simplified) -->
+    <div id="sentenceSuggestions">
+      <span class="suggestions-title">Sentence Suggestions</span>
+      <div class="suggestions-container">
+        <!-- Content will be added dynamically -->
+      </div>
+    </div>
+
     <!-- Word suggestions -->
-    <div id="wordSuggestions"></div>
+    <div id="wordSuggestions">
+      <span class="suggestions-title">Word Suggestions</span>
+      <div class="suggestions-scroll-container">
+        <!-- Content will be added dynamically -->
+      </div>
+    </div>
 
     <div id="keyboard">
       <!-- Row 1 -->

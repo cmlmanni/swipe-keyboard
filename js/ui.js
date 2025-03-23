@@ -75,6 +75,29 @@ function initUI() {
   window.addEventListener("resetPathForContinuous", () => {
     clearPath();
   });
+
+  // Add prediction order preference
+  setupPredictionOrderPreference();
+
+  // Setup drag scrolling for suggestion areas
+  setupDragScrolling();
+
+  // Listen for path clearing
+  window.addEventListener("clearSwipePath", () => {
+    clearPath();
+  });
+
+  // Listen for path fade-out
+  window.addEventListener("fadeSwipePath", () => {
+    // Add fade-out class to canvas
+    canvas.classList.add("path-fade-out");
+
+    // Clear path after animation
+    setTimeout(() => {
+      clearPath();
+      canvas.classList.remove("path-fade-out");
+    }, 800);
+  });
 }
 
 // Calculate keyboard boundaries for limiting capture area
@@ -135,24 +158,8 @@ function debounce(func, wait) {
 
 // Set up canvas for path visualization
 function setupCanvas() {
-  canvas = document.createElement("canvas");
-  canvas.id = "pathCanvas";
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  canvas.style.position = "absolute";
-  canvas.style.top = "0";
-  canvas.style.left = "0";
-  canvas.style.pointerEvents = "none";
-  canvas.style.zIndex = "1000";
-  document.body.appendChild(canvas);
+  canvas = initPathCanvas();
   ctx = canvas.getContext("2d");
-
-  // Resize canvas when window resizes
-  window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    drawPath();
-  });
 }
 
 // Clear path visualization
@@ -163,22 +170,43 @@ function clearPath() {
   }
 }
 
-// Draw the current path
+// Update the drawPath function
 function drawPath() {
   if (!ctx || pathPoints.length < 2) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Draw the main path
   ctx.beginPath();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "#ff5722";
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "#ff5722"; // Bright orange
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 
   ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
   for (let i = 1; i < pathPoints.length; i++) {
     ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
   }
-
   ctx.stroke();
+
+  // Add glow effect
+  ctx.shadowColor = "#ff5722";
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+
+  // Draw circles at key points
+  drawPathDots();
+}
+
+// Add a function to draw dots at key points
+function drawPathDots() {
+  // Only draw dots at every 5th point to avoid overcrowding
+  for (let i = 0; i < pathPoints.length; i += 5) {
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(255, 87, 34, 0.6)";
+    ctx.arc(pathPoints[i].x, pathPoints[i].y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 // Handle mouse position updates (from input.js)
@@ -267,6 +295,50 @@ function setupAccessibilityHelp() {
   );
 }
 
+// Add this after the setupAccessibilityHelp function
+function setupPredictionOrderPreference() {
+  const predictionOrderToggle = document.createElement("button");
+  predictionOrderToggle.id = "predictionOrderToggle";
+  predictionOrderToggle.textContent = "Swap Prediction Order";
+  predictionOrderToggle.style.margin = "10px";
+  predictionOrderToggle.style.padding = "8px 12px";
+  predictionOrderToggle.style.backgroundColor = "#6c757d";
+  predictionOrderToggle.style.color = "white";
+  predictionOrderToggle.style.border = "none";
+  predictionOrderToggle.style.borderRadius = "5px";
+  predictionOrderToggle.style.cursor = "pointer";
+
+  // Insert after the mode toggle
+  if (document.getElementById("continuousModeToggle")) {
+    document
+      .getElementById("continuousModeToggle")
+      .insertAdjacentElement("afterend", predictionOrderToggle);
+  } else {
+    elements.captureToggle.insertAdjacentElement(
+      "afterend",
+      predictionOrderToggle
+    );
+  }
+
+  // Toggle prediction order
+  predictionOrderToggle.addEventListener("click", function () {
+    const wordSuggestions = document.getElementById("wordSuggestions");
+    const sentenceSuggestions = document.getElementById("sentenceSuggestions");
+    const outputArea = document.getElementById("outputArea");
+
+    // Get the element that comes after outputArea
+    const nextAfterOutput = outputArea.nextElementSibling;
+
+    if (nextAfterOutput === sentenceSuggestions) {
+      // If sentence is first, swap to word first
+      outputArea.insertAdjacentElement("afterend", wordSuggestions);
+    } else {
+      // If word is first, swap to sentence first
+      outputArea.insertAdjacentElement("afterend", sentenceSuggestions);
+    }
+  });
+}
+
 // Update UI with current values
 function updateUIValues() {
   elements.dwellTimeValue.textContent = `${settings.dwellTime}ms`;
@@ -309,6 +381,88 @@ function setupContinuousMode() {
   // Listen for special events for continuous mode
   window.addEventListener("resetPathForContinuous", () => {
     clearPath();
+  });
+}
+
+// Update the function that initializes the path canvas
+function initPathCanvas() {
+  const canvas = document.createElement("canvas");
+  canvas.id = "pathCanvas";
+
+  // Remove any existing canvas to prevent duplication
+  const existingCanvas = document.getElementById("pathCanvas");
+  if (existingCanvas) {
+    existingCanvas.parentNode.removeChild(existingCanvas);
+  }
+
+  // Append to body for full screen coverage
+  document.body.appendChild(canvas);
+
+  // Set canvas to full viewport size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.position = "fixed";
+  canvas.style.top = "0";
+  canvas.style.left = "0";
+  canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "9999";
+
+  // Update on window resize
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  return canvas;
+}
+
+// Add this function to the initUI function
+function setupDragScrolling() {
+  // Apply drag scrolling to both suggestion containers
+  enableDragScroll(
+    document.querySelector("#wordSuggestions .suggestions-scroll-container")
+  );
+  enableDragScroll(
+    document.querySelector("#sentenceSuggestions .suggestions-container")
+  );
+}
+
+// Function to enable drag-to-scroll on containers
+function enableDragScroll(element) {
+  if (!element) return;
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  // Enable cursor feedback
+  element.style.cursor = "grab";
+
+  element.addEventListener("mousedown", (e) => {
+    isDown = true;
+    element.style.cursor = "grabbing";
+    startX = e.pageX - element.offsetLeft;
+    scrollLeft = element.scrollLeft;
+    e.preventDefault(); // Prevent text selection during drag
+  });
+
+  element.addEventListener("mouseleave", () => {
+    isDown = false;
+    element.style.cursor = "grab";
+  });
+
+  element.addEventListener("mouseup", () => {
+    isDown = false;
+    element.style.cursor = "grab";
+  });
+
+  element.addEventListener("mousemove", (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - element.offsetLeft;
+    // Use a multiplier for sensitivity (adjust for MND users)
+    const walk = (x - startX) * 1.5;
+    element.scrollLeft = scrollLeft - walk;
   });
 }
 

@@ -21,7 +21,9 @@ const elements = {
   lastKeyDisplay: document.getElementById("lastKey"),
   completeSequenceDisplay: document.getElementById("completeSequence"),
   captureToggle: document.getElementById("captureToggle"),
-  wordSuggestionsContainer: document.getElementById("wordSuggestions"),
+  wordSuggestionsContainer: document.querySelector(
+    "#wordSuggestions .suggestions-scroll-container"
+  ),
   selectedWordsContainer: document.getElementById("selectedWords"),
   dwellTimeSlider: document.getElementById("dwellTime"),
   dwellTimeValue: document.getElementById("dwellTimeValue"),
