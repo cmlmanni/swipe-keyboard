@@ -213,12 +213,21 @@ function drawPathDots() {
   }
 }
 
-// Handle mouse position updates (from input.js)
+// Update handleMousePositionUpdate function
 function handleMousePositionUpdate(event) {
   const { x, y } = event.detail;
 
-  // Only add points if within keyboard boundary
-  if (isWithinKeyboardBoundary(x, y)) {
+  // Get direct keyboard boundaries
+  const keyboardRect = elements.keyboard.getBoundingClientRect();
+
+  // Only add points if directly within keyboard area, not just the padding
+  const isDirectlyOverKeyboard =
+    x >= keyboardRect.left &&
+    x <= keyboardRect.right &&
+    y >= keyboardRect.top &&
+    y <= keyboardRect.bottom;
+
+  if (isDirectlyOverKeyboard) {
     pathPoints.push({ x, y });
     drawPath();
   }

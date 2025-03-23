@@ -165,8 +165,18 @@ function handleMouseMovement(event) {
   const x = event.clientX;
   const y = event.clientY;
 
-  // Only process if within keyboard boundary or if we're already capturing
-  if (state.isCapturing && isWithinKeyboardBoundary(x, y)) {
+  // Get the actual keyboard element's boundaries
+  const keyboardRect = elements.keyboard.getBoundingClientRect();
+
+  // Check if mouse is directly over the keyboard, not just within the larger boundary
+  const isDirectlyOverKeyboard =
+    x >= keyboardRect.left &&
+    x <= keyboardRect.right &&
+    y >= keyboardRect.top &&
+    y <= keyboardRect.bottom;
+
+  // Only process if directly over the keyboard
+  if (state.isCapturing && isDirectlyOverKeyboard) {
     // Update path if capturing (handled in UI module)
     window.dispatchEvent(
       new CustomEvent("mousePositionUpdate", {
@@ -255,8 +265,24 @@ function initActionKeysHandlers() {
         case "space":
           // Handle space key
           const selectedWordsElement = elements.selectedWordsContainer;
+
           if (selectedWordsElement.textContent) {
-            selectedWordsElement.textContent += " ";
+            // Only add space if the last character isn't already a space
+            const currentText = selectedWordsElement.textContent;
+            if (currentText[currentText.length - 1] !== " ") {
+              selectedWordsElement.textContent += " ";
+
+              // Add visual feedback for the space action
+              key.classList.add("active");
+              setTimeout(() => key.classList.remove("active"), 150);
+
+              // If we're in capturing mode, stop capturing like other actions
+              if (state.isCapturing && !state.continuousMode) {
+                state.isCapturing = false;
+                elements.captureToggle.textContent = "Start Capturing";
+                elements.captureToggle.classList.remove("active");
+              }
+            }
           }
           break;
       }
@@ -290,8 +316,24 @@ function initActionKeysHandlers() {
 
         case "space":
           const selectedWordsElement = elements.selectedWordsContainer;
+
           if (selectedWordsElement.textContent) {
-            selectedWordsElement.textContent += " ";
+            // Only add space if the last character isn't already a space
+            const currentText = selectedWordsElement.textContent;
+            if (currentText[currentText.length - 1] !== " ") {
+              selectedWordsElement.textContent += " ";
+
+              // Add visual feedback
+              key.classList.add("active");
+              setTimeout(() => key.classList.remove("active"), 150);
+
+              // If we're in capturing mode, stop capturing
+              if (state.isCapturing && !state.continuousMode) {
+                state.isCapturing = false;
+                elements.captureToggle.textContent = "Start Capturing";
+                elements.captureToggle.classList.remove("active");
+              }
+            }
           }
           break;
       }

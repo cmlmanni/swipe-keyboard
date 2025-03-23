@@ -80,17 +80,6 @@
         <div class="key key-delete-all" data-action="delete-all">Clear All</div>
       </div>
     </div>
-
-    <div id="swipeSequence">Swipe Sequence: <span id="sequence"></span></div>
-
-    <div id="debug">
-      <div>Status: <span id="status" class="status">Idle</span></div>
-      <div>Capture method: <span id="captureMethod">None</span></div>
-      <div>Last key: <span id="lastKey">None</span></div>
-      <div>Complete sequence: <span id="completeSequence">None</span></div>
-    </div>
-
-    <!-- Add accessibility controls -->
     <div id="accessibilityControls">
       <div>
         <label for="dwellTime">Dwell time (ms):</label>
@@ -108,6 +97,20 @@
         <label for="tolerance">Movement tolerance:</label>
         <input type="range" id="tolerance" min="1" max="10" value="3" />
         <span id="toleranceValue">3</span>
+      </div>
+    </div>
+    <!-- Debug Section -->
+    <div
+      id="debugSection"
+      style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px"
+    >
+      <h3>Debug Information</h3>
+      <div id="swipeSequence">Swipe Sequence: <span id="sequence"></span></div>
+      <div id="debug">
+        <div>Status: <span id="status" class="status">Idle</span></div>
+        <div>Capture method: <span id="captureMethod">None</span></div>
+        <div>Last key: <span id="lastKey">None</span></div>
+        <div>Complete sequence: <span id="completeSequence">None</span></div>
       </div>
     </div>
 

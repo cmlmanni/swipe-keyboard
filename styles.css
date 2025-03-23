@@ -81,6 +81,23 @@ h1 {
   background-color: #218838;
 }
 
+.key-space.active {
+  animation: spacePress 0.15s;
+}
+
+@keyframes spacePress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+    background-color: #218838;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .key-delete-all {
   flex: 2;
   background-color: #dc3545;
@@ -136,6 +153,18 @@ h1 {
   font-size: 1.4em;
   line-height: 1.5;
   min-height: 1.5em;
+}
+
+#selectedWords::after {
+  content: "▏"; /* Add a subtle cursor */
+  animation: blink 1s infinite;
+  color: #0056b3;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Update the suggestions styling to make them more mobile-like */
