@@ -579,8 +579,12 @@ function runNextDemoScenario() {
             } else {
               // Move to next scenario if no sentence prediction
               setTimeout(() => {
-                currentDemoScenario =
-                  (currentDemoScenario + 1) % demoScenarios.length;
+                currentDemoScenario++;
+                if (currentDemoScenario >= demoScenarios.length) {
+                  // We've shown all scenarios, now show backspace demo
+                  showBackspaceDemo();
+                  return; // Exit the current demo loop
+                }
                 demoStep = 0;
                 if (demoActive) runNextDemoScenario();
               }, 3000);
@@ -640,8 +644,12 @@ function runNextDemoScenario() {
                           } else {
                             // Auto-advance to next scenario
                             demoStep = 0;
-                            currentDemoScenario =
-                              (currentDemoScenario + 1) % demoScenarios.length;
+                            currentDemoScenario++;
+                            if (currentDemoScenario >= demoScenarios.length) {
+                              // We've shown all scenarios, now show backspace demo
+                              showBackspaceDemo();
+                              return; // Exit the current demo loop
+                            }
                             // Clean up
                             elements.selectedWordsContainer.textContent = "";
                             clearPath();
@@ -667,8 +675,12 @@ function runNextDemoScenario() {
         } else {
           // Auto-advance to next scenario
           demoStep = 0;
-          currentDemoScenario =
-            (currentDemoScenario + 1) % demoScenarios.length;
+          currentDemoScenario++;
+          if (currentDemoScenario >= demoScenarios.length) {
+            // We've shown all scenarios, now show backspace demo
+            showBackspaceDemo();
+            return; // Exit the current demo loop
+          }
           setTimeout(() => {
             if (demoActive) runNextDemoScenario();
           }, 2000);
@@ -757,7 +769,12 @@ function showNextScenarioButton() {
   nextButton.addEventListener("click", () => {
     nextButton.remove();
     demoStep = 0;
-    currentDemoScenario = (currentDemoScenario + 1) % demoScenarios.length;
+    currentDemoScenario++;
+    if (currentDemoScenario >= demoScenarios.length) {
+      // We've shown all scenarios, now show backspace demo
+      showBackspaceDemo();
+      return; // Exit the current demo loop
+    }
     // Programmatically press the clear all button
     triggerClearAll();
     // Run next scenario after a short delay
@@ -1363,6 +1380,57 @@ function toggleDemoMode() {
   } else {
     startDemoMode();
   }
+}
+
+// Add this function to implement the backspace demo
+
+function showBackspaceDemo() {
+  // Clear previous content but leave text to delete
+  clearPath();
+  elements.selectedWordsContainer.textContent = "Neural network architecture";
+
+  // Show explanation
+  showDemoMessage(
+    "Backspace Demo",
+    "Watch how the backspace key can be used to delete words"
+  );
+
+  // Point to the backspace key
+  showKeyboardPointer("Press backspace to delete words");
+
+  // After a delay, simulate pressing the backspace key
+  setTimeout(() => {
+    if (!demoActive) return;
+
+    // Find and highlight the backspace key
+    const backspaceKey = document.querySelector(
+      '.key[data-action="backspace"]'
+    );
+    if (backspaceKey) {
+      backspaceKey.classList.add("active");
+
+      // Simulate backspace action
+      deleteLastWord();
+
+      // Remove highlight after a delay
+      setTimeout(() => {
+        backspaceKey.classList.remove("active");
+
+        // Show completion message
+        setTimeout(() => {
+          showDemoMessage(
+            "Demo Complete",
+            "All features have been demonstrated"
+          );
+
+          // End the demo after a delay
+          setTimeout(() => {
+            stopDemoMode();
+          }, 3000);
+        }, 1000);
+      }, 500);
+    }
+  }, 3000);
 }
 
 export { startDemoMode, stopDemoMode, toggleDemoMode };
