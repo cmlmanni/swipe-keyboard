@@ -281,6 +281,21 @@ function deleteLastWord() {
   state.lastSelectionIndex = null;
 }
 
+// Add this function for clearing all text
+function deleteAllText() {
+  const selectedWordsElement = elements.selectedWordsContainer;
+
+  // Clear the displayed text
+  selectedWordsElement.textContent = "";
+
+  // Clear context history
+  contextHistory.clear();
+
+  // Reset the last selected word tracking
+  state.lastSelectedWord = null;
+  state.lastSelectionIndex = null;
+}
+
 // Get predictions based on current mode
 async function getPredictionsBasedOnMode(sequence) {
   if (!sequence) return [];
@@ -400,5 +415,6 @@ export {
   replaceLastWord,
   getRealtimePredictions,
   deleteLastWord,
+  deleteAllText, // Add this
   contextHistory,
 };

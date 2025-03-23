@@ -9,7 +9,11 @@ import {
   updateDebugInfo,
 } from "./core.js";
 import { clearPath, isWithinKeyboardBoundary } from "./ui.js";
-import { getRealtimePredictions, deleteLastWord } from "./prediction.js";
+import {
+  getRealtimePredictions,
+  deleteLastWord,
+  deleteAllText,
+} from "./prediction.js";
 
 // State for input tracking
 const inputState = {
@@ -20,6 +24,13 @@ const inputState = {
   guardPeriod: false,
 };
 
+const backspaceState = {
+  isPressed: false,
+  initialDelay: 700, // Wait this long before starting continuous deletion
+  repeatDelay: 250, // Delete every X ms after initial delay
+  deleteTimer: null,
+};
+
 // Initialize input handlers
 function initInputHandlers() {
   // Touch input
@@ -28,16 +39,8 @@ function initInputHandlers() {
   initMouseHoverHandlers();
   // Dwell input
   initDwellHandlers();
-
-  // Add handler for action keys (backspace)
-  document.querySelectorAll(".key[data-action]").forEach((key) => {
-    key.addEventListener("click", function () {
-      const action = this.getAttribute("data-action");
-      if (action === "backspace") {
-        deleteLastWord();
-      }
-    });
-  });
+  // Initialize action key handlers (includes backspace)
+  initActionKeysHandlers();
 }
 
 // Touch event handlers
@@ -220,6 +223,107 @@ function handleMouseMovement(event) {
     clearTimeout(inputState.dwellTimer);
     inputState.currentDwellElement = null;
   }
+}
+
+// Update initBackspaceHandlers to handle all action keys
+function initActionKeysHandlers() {
+  // Get all action keys
+  const actionKeys = document.querySelectorAll(".key[data-action]");
+
+  actionKeys.forEach((key) => {
+    const action = key.getAttribute("data-action");
+
+    // Handle mousedown
+    key.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+
+      switch (action) {
+        case "backspace":
+          // Handle backspace
+          backspaceState.isPressed = true;
+          deleteLastWord();
+          backspaceState.deleteTimer = setTimeout(function () {
+            startContinuousDelete();
+          }, backspaceState.initialDelay);
+          break;
+
+        case "delete-all":
+          // Handle delete all
+          deleteAllText();
+          break;
+
+        case "space":
+          // Handle space key
+          const selectedWordsElement = elements.selectedWordsContainer;
+          if (selectedWordsElement.textContent) {
+            selectedWordsElement.textContent += " ";
+          }
+          break;
+      }
+    });
+
+    // Handle mouseup for keys that need it
+    if (action === "backspace") {
+      ["mouseup", "mouseleave"].forEach((event) => {
+        key.addEventListener(event, function () {
+          stopContinuousDelete();
+        });
+      });
+    }
+
+    // Handle touch events
+    key.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+
+      switch (action) {
+        case "backspace":
+          backspaceState.isPressed = true;
+          deleteLastWord();
+          backspaceState.deleteTimer = setTimeout(function () {
+            startContinuousDelete();
+          }, backspaceState.initialDelay);
+          break;
+
+        case "delete-all":
+          deleteAllText();
+          break;
+
+        case "space":
+          const selectedWordsElement = elements.selectedWordsContainer;
+          if (selectedWordsElement.textContent) {
+            selectedWordsElement.textContent += " ";
+          }
+          break;
+      }
+    });
+
+    if (action === "backspace") {
+      ["touchend", "touchcancel"].forEach((event) => {
+        key.addEventListener(event, function () {
+          stopContinuousDelete();
+        });
+      });
+    }
+  });
+}
+
+// Function to start continuous deletion
+function startContinuousDelete() {
+  if (!backspaceState.isPressed) return;
+
+  // Delete a word
+  deleteLastWord();
+
+  // Schedule the next deletion
+  backspaceState.deleteTimer = setTimeout(function () {
+    startContinuousDelete();
+  }, backspaceState.repeatDelay);
+}
+
+// Function to stop continuous deletion
+function stopContinuousDelete() {
+  backspaceState.isPressed = false;
+  clearTimeout(backspaceState.deleteTimer);
 }
 
 export {

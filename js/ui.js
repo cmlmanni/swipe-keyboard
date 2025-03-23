@@ -12,6 +12,7 @@ import {
   getPredictionsBasedOnMode,
   displaySuggestions,
   replaceLastWord,
+  deleteAllText,
 } from "./prediction.js";
 
 // Canvas for path visualization
@@ -98,6 +99,9 @@ function initUI() {
       canvas.classList.remove("path-fade-out");
     }, 800);
   });
+
+  // Setup delete all button
+  setupDeleteAllButton();
 }
 
 // Calculate keyboard boundaries for limiting capture area
@@ -463,6 +467,16 @@ function enableDragScroll(element) {
     // Use a multiplier for sensitivity (adjust for MND users)
     const walk = (x - startX) * 1.5;
     element.scrollLeft = scrollLeft - walk;
+  });
+}
+
+// Add this function to your ui.js file
+function setupDeleteAllButton() {
+  const deleteAllBtn = document.getElementById("deleteAllBtn");
+  if (!deleteAllBtn) return;
+
+  deleteAllBtn.addEventListener("click", function () {
+    deleteAllText();
   });
 }
 
