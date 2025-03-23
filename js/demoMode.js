@@ -1,5 +1,6 @@
 import { state, elements, addKeyToSequence, resetSequence } from "./core.js";
 import { clearPath } from "./ui.js";
+import { deleteLastWord } from "./prediction.js";
 
 // Demo state
 let demoActive = false;
