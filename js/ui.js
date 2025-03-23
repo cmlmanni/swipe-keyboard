@@ -14,6 +14,7 @@ import {
   replaceLastWord,
   deleteAllText,
 } from "./prediction.js";
+import { toggleDemoMode } from "./demoMode.js";
 
 // Canvas for path visualization
 let canvas;
@@ -102,6 +103,9 @@ function initUI() {
 
   // Setup delete all button
   setupDeleteAllButton();
+
+  // Add demo mode toggle
+  setupDemoModeToggle();
 }
 
 // Calculate keyboard boundaries for limiting capture area
@@ -486,6 +490,35 @@ function setupDeleteAllButton() {
 
   deleteAllBtn.addEventListener("click", function () {
     deleteAllText();
+  });
+}
+
+// Add this function to the ui.js file
+function setupDemoModeToggle() {
+  const demoModeToggle = document.createElement("button");
+  demoModeToggle.id = "demoModeToggle";
+  demoModeToggle.textContent = "Start Demo Mode";
+  demoModeToggle.style.backgroundColor = "#ff9800";
+  demoModeToggle.style.color = "white";
+  demoModeToggle.style.border = "none";
+  demoModeToggle.style.borderRadius = "5px";
+  demoModeToggle.style.cursor = "pointer";
+  demoModeToggle.style.padding = "8px 12px";
+  demoModeToggle.style.margin = "10px";
+
+  // Add the button to control buttons
+  const controlButtons = document.getElementById("controlButtons");
+  controlButtons.appendChild(demoModeToggle);
+
+  // Toggle demo mode on click
+  demoModeToggle.addEventListener("click", function () {
+    toggleDemoMode();
+    this.textContent =
+      this.textContent === "Start Demo Mode"
+        ? "Stop Demo Mode"
+        : "Start Demo Mode";
+    this.style.backgroundColor =
+      this.textContent === "Stop Demo Mode" ? "#e65100" : "#ff9800";
   });
 }
 

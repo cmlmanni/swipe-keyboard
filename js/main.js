@@ -1,8 +1,9 @@
 // Main entry point that initializes everything
 
-import { updateDebugInfo } from "./core.js";
+import { state, updateDebugInfo } from "./core.js";
 import { initInputHandlers } from "./input.js";
 import { initUI } from "./ui.js";
+import { startDemoMode, stopDemoMode } from "./demoMode.js"; // Add this import
 
 // Initialize the application
 function initApp() {

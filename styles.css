@@ -801,3 +801,36 @@ h1 {
 #sentenceSuggestions .suggestions-container:hover {
   cursor: grab !important;
 }
+
+/* Add at the end of the CSS file */
+
+/* Demo mode styles */
+@keyframes demoIndicatorPulse {
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+#demoModeIndicator {
+  animation: demoIndicatorPulse 2s infinite;
+  font-weight: bold;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#demoModeToggle {
+  font-weight: bold;
+}
+
+/* Highlight effect for demo mode keys */
+.key.demo-highlight {
+  background-color: #ff9800;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
