@@ -9,7 +9,7 @@ import {
   updateDebugInfo,
 } from "./core.js";
 import { clearPath, isWithinKeyboardBoundary } from "./ui.js";
-import { getRealtimePredictions } from "./prediction.js";
+import { getRealtimePredictions, deleteLastWord } from "./prediction.js";
 
 // State for input tracking
 const inputState = {
@@ -27,6 +27,16 @@ function initInputHandlers() {
   initMouseHoverHandlers();
   // Dwell input
   initDwellHandlers();
+
+  // Add handler for action keys (backspace)
+  document.querySelectorAll(".key[data-action]").forEach((key) => {
+    key.addEventListener("click", function () {
+      const action = this.getAttribute("data-action");
+      if (action === "backspace") {
+        deleteLastWord();
+      }
+    });
+  });
 }
 
 // Touch event handlers

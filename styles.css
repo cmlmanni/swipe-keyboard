@@ -18,8 +18,8 @@ h1 {
 
 /* Keyboard layout */
 #keyboard {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   width: 100%;
   max-width: 650px;
@@ -32,6 +32,8 @@ h1 {
 }
 
 .key {
+  flex: 1;
+  min-width: 30px;
   background: #007acc;
   color: white;
   text-align: center;
@@ -46,6 +48,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 2px;
 }
 
 .key:hover {
@@ -55,6 +58,17 @@ h1 {
 .key.active {
   background-color: #ff5722;
   transform: scale(1.05);
+}
+
+/* Add this to your CSS */
+.key-backspace {
+  background-color: #dc3545;
+  min-width: 50px;
+  flex: 1.5;
+}
+
+.key-backspace:hover {
+  background-color: #c82333;
 }
 
 /* Control buttons */
@@ -332,17 +346,22 @@ h1 {
 
 /* Row styling to improve keyboard layout */
 .keyboard-row {
-  display: contents;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 8px;
 }
 
-/* For different rows */
+/* Remove or comment out these problematic styles that are causing the layout issues */
+/* 
 .keyboard-row:nth-child(2) {
-  margin-left: 20px; /* Offset for QWERTY layout */
+  margin-left: 20px;
 }
 
 .keyboard-row:nth-child(3) {
-  margin-left: 35px; /* Offset for QWERTY layout */
+  margin-left: 35px;
 }
+*/
 
 /* Keyboard boundary visualization */
 .keyboard-boundary {

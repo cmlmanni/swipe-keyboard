@@ -3,6 +3,28 @@
 import { state, elements, resetSequence } from "./core.js";
 import { findBestMatches } from "./dictionary.js";
 
+// Keeps track of recent words for context
+const contextHistory = {
+  recentWords: [],
+  maxHistoryLength: 10,
+
+  addWord(word) {
+    this.recentWords.push(word);
+    if (this.recentWords.length > this.maxHistoryLength) {
+      this.recentWords.shift();
+    }
+    return this.recentWords;
+  },
+
+  getContext() {
+    return this.recentWords.join(" ");
+  },
+
+  clear() {
+    this.recentWords = [];
+  },
+};
+
 // Auto-selection timer
 let autoSelectionTimer;
 const AUTO_SELECT_DELAY = 800; // Time in ms before auto-selecting the first suggestion
@@ -143,6 +165,9 @@ function selectWord(word) {
   state.lastSelectedWord = word;
   state.lastSelectionIndex = selectedWordsElement.textContent.lastIndexOf(word);
 
+  // Add selected word to context history
+  contextHistory.addWord(word);
+
   // Check if we're in continuous mode
   if (state.continuousMode) {
     // Just clear sequence but keep capturing
@@ -197,6 +222,34 @@ function replaceLastWord(newWord) {
   });
 }
 
+// Add this function to handle backspace action
+function deleteLastWord() {
+  const selectedWordsElement = elements.selectedWordsContainer;
+  const content = selectedWordsElement.textContent;
+
+  if (!content) return; // Nothing to delete
+
+  // Find the last space or start of text
+  const lastSpaceIndex = content.lastIndexOf(" ");
+
+  if (lastSpaceIndex === -1) {
+    // No spaces, clear everything
+    selectedWordsElement.textContent = "";
+  } else {
+    // Remove the last word
+    selectedWordsElement.textContent = content.substring(0, lastSpaceIndex);
+  }
+
+  // Update context history
+  if (contextHistory.recentWords.length > 0) {
+    contextHistory.recentWords.pop();
+  }
+
+  // Reset last selected word tracking
+  state.lastSelectedWord = null;
+  state.lastSelectionIndex = null;
+}
+
 // Get predictions based on current mode
 async function getPredictionsBasedOnMode(sequence) {
   if (!sequence) return [];
@@ -228,4 +281,5 @@ export {
   selectWord,
   replaceLastWord,
   getRealtimePredictions,
+  deleteLastWord, // Add this export
 };
