@@ -716,6 +716,12 @@ function runNextDemoScenario() {
         // First, clear any existing explanations
         clearAllDemoUIElements();
 
+        // Now show the message (after clearing, so it won't get cleared)
+        showDemoMessage(
+          "STEP 2: Context-Aware Sentence Prediction",
+          "Watch how the system learns from the selected word to predict full sentences"
+        );
+
         // Show the context-aware explanation
         showContextAwareExplanation(scenario);
 
