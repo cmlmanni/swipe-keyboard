@@ -522,6 +522,22 @@ function setupDemoModeToggle() {
   });
 }
 
+// Find the handler for the "Say This!" button and add:
+
+function handleEnterAction() {
+  const text = elements.selectedWordsContainer.textContent.trim();
+  if (text) {
+    // Existing code for speech synthesis...
+
+    // Add to history
+    document.dispatchEvent(
+      new CustomEvent("sentenceSelected", {
+        detail: { sentence: text },
+      })
+    );
+  }
+}
+
 export {
   initUI,
   clearPath,

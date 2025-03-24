@@ -157,6 +157,7 @@ let demoStep = 0; // Track which step of the demo we're on
 let demoMode = "word"; // "word" or "sentence"
 let meetingContext = 0; // To track which meeting context we're in
 let singleDemoMode = false; // Track if we're replaying just a single demo
+let demoPlayedOnce = false; // Track if demos have been played through once
 
 // AI engineering meeting contexts to make demo more realistic
 const meetingContexts = [
@@ -286,6 +287,17 @@ function simulateWordSelection(word) {
 
   // Add to demo phrase
   demoPhrase += (demoPhrase ? " " : "") + word;
+
+  // Add to history if complete phrases (like standalone words)
+  // Only do this if the word appears to be a complete thought
+  if (word.length > 3 && !demoScenarios[currentDemoScenario].followUp) {
+    // Import the addToHistory function from history.js
+    import("./history.js").then((historyModule) => {
+      if (historyModule.addToHistory) {
+        historyModule.addToHistory(word);
+      }
+    });
+  }
 }
 
 // Function to simulate selecting a sentence
@@ -316,6 +328,20 @@ function simulateSentenceSelection(sentenceIndex, sentences) {
 
   // Update demo phrase
   demoPhrase = selectedWordsElement.textContent;
+
+  // Add to history panel - import history module and use addToHistory
+  import("./history.js").then((historyModule) => {
+    if (historyModule.addToHistory) {
+      historyModule.addToHistory(sentence);
+    }
+  });
+
+  // Also dispatch the sentenceSelected event for any other listeners
+  document.dispatchEvent(
+    new CustomEvent("sentenceSelected", {
+      detail: { sentence: sentence },
+    })
+  );
 }
 
 // Add tremor to a point to simulate MND movement
@@ -1033,7 +1059,7 @@ function addDemoRationale(scenarioIndex) {
 }
 
 // Clear all demo UI elements
-function clearDemoUI() {
+function clearDemoUI(preserveControls = false) {
   // Clear the text area
   elements.selectedWordsContainer.textContent = "";
 
@@ -1044,18 +1070,22 @@ function clearDemoUI() {
   resetSequence();
 
   // Remove all demo UI elements
-  clearAllDemoUIElements();
+  clearAllDemoUIElements(preserveControls);
 }
 
 // Update the clearAllDemoUIElements function to be more comprehensive
-function clearAllDemoUIElements() {
+function clearAllDemoUIElements(preserveControls = false) {
   const messageDiv = document.getElementById("demoPanelMessage");
   const contentDiv = document.getElementById("demoPanelContent");
   const actionDiv = document.getElementById("demoPanelActions");
 
   if (messageDiv) messageDiv.innerHTML = "";
   if (contentDiv) contentDiv.innerHTML = "";
-  if (actionDiv) actionDiv.innerHTML = "";
+
+  // Only clear action div if not preserving controls or demos not played yet
+  if (actionDiv && (!preserveControls || !demoPlayedOnce)) {
+    actionDiv.innerHTML = "";
+  }
 
   // Still remove any elements that might be lingering outside the panels
   document.querySelectorAll(".demo-temp-element").forEach((el) => el.remove());
@@ -1073,6 +1103,16 @@ function clearAllDemoUIElements() {
   buttons.forEach((btn) => {
     if (btn.parentNode) btn.parentNode.remove();
   });
+
+  // If preserving controls and demos played once, make sure controls are shown
+  if (
+    preserveControls &&
+    demoPlayedOnce &&
+    actionDiv &&
+    actionDiv.innerHTML === ""
+  ) {
+    setupDemoReplayControls();
+  }
 }
 
 // Show step-specific explanation
@@ -1352,9 +1392,16 @@ function setupDemoUI() {
   // Setup the demo panel on the left
   setupDemoPanel();
 
-  // Clear the action area at demo start (no replay buttons yet)
+  // Clear the action area at demo start
   const actionDiv = document.getElementById("demoPanelActions");
-  if (actionDiv) actionDiv.innerHTML = "";
+  if (actionDiv) {
+    // If demos have been played once, always show the replay controls
+    if (demoPlayedOnce) {
+      setupDemoReplayControls();
+    } else {
+      actionDiv.innerHTML = "";
+    }
+  }
 
   // Don't create a new intro panel - just ensure it exists
   if (!document.getElementById("demoIntroPanel")) {
@@ -1467,6 +1514,9 @@ function showBackspaceDemo() {
           `;
           contentDiv.scrollTop = contentDiv.scrollHeight;
         }
+
+        // Set flag indicating demos have been played once
+        demoPlayedOnce = true;
 
         // Add replay controls to the action area
         setupDemoReplayControls();
@@ -1600,8 +1650,8 @@ function resetDemoAndStart(scenarioIndex = 0, singleDemo = false) {
   // Set single demo mode flag
   singleDemoMode = singleDemo;
 
-  // Clear UI
-  clearDemoUI();
+  // Clear UI but preserve replay controls if demos played once
+  clearDemoUI(true); // Pass true to preserve controls
 
   // If not already active, activate demo mode
   if (!demoActive) {

@@ -4,6 +4,7 @@ import { state, updateDebugInfo } from "./core.js";
 import { initInputHandlers } from "./input.js";
 import { initUI } from "./ui.js";
 import { startDemoMode, stopDemoMode } from "./demoMode.js"; // Add this import
+import { initHistoryPanel, setupHistoryListeners } from "./history.js";
 
 // Initialize the application
 function initApp() {
@@ -15,6 +16,10 @@ function initApp() {
 
   // Initialize debug info
   updateDebugInfo();
+
+  // Initialize the history panel
+  initHistoryPanel();
+  setupHistoryListeners();
 
   // NEW: Always start in capture mode with continuous mode on
   const captureToggle = document.getElementById("captureToggle");
@@ -42,3 +47,12 @@ document.addEventListener("DOMContentLoaded", initApp);
 
 // Export for direct script use
 export { initApp };
+
+// Add this to your initialization function
+function init() {
+  // Other initializations...
+
+  // Initialize history panel
+  initHistoryPanel();
+  setupHistoryListeners();
+}

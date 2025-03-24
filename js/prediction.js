@@ -199,6 +199,31 @@ function selectWord(word) {
   // Add selected word to context history
   contextHistory.addWord(word);
 
+  // Trigger history update when a complete sentence is formed
+  // This event will be captured by the history module
+  if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
+    document.dispatchEvent(
+      new CustomEvent("sentenceSelected", {
+        detail: { sentence: selectedWordsElement.textContent },
+      })
+    );
+  }
+
+  // If the selected words container has content and ends with punctuation, consider it a complete sentence
+  const selectedText = elements.selectedWordsContainer.textContent;
+  if (
+    selectedText &&
+    (selectedText.endsWith(".") ||
+      selectedText.endsWith("!") ||
+      selectedText.endsWith("?"))
+  ) {
+    document.dispatchEvent(
+      new CustomEvent("sentenceSelected", {
+        detail: { sentence: selectedText },
+      })
+    );
+  }
+
   // Check if we're in continuous mode
   if (state.continuousMode) {
     // Just clear sequence but keep capturing
