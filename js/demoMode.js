@@ -2,6 +2,119 @@ import { state, elements, addKeyToSequence, resetSequence } from "./core.js";
 import { clearPath } from "./ui.js";
 import { deleteLastWord } from "./prediction.js";
 
+// Setup a fixed demo panel on the left
+function setupDemoPanel() {
+  // Remove any existing panel
+  const existingPanel = document.getElementById("demoLeftPanel");
+  if (existingPanel) existingPanel.remove();
+
+  const demoPanel = document.createElement("div");
+  demoPanel.id = "demoLeftPanel";
+  demoPanel.style.position = "fixed";
+  demoPanel.style.left = "10px";
+  demoPanel.style.top = "10px";
+  demoPanel.style.width = "280px";
+  demoPanel.style.height = "calc(100vh - 20px)";
+  demoPanel.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+  demoPanel.style.borderRadius = "8px";
+  demoPanel.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+  demoPanel.style.zIndex = "9995";
+  demoPanel.style.display = "flex";
+  demoPanel.style.flexDirection = "column";
+  demoPanel.style.overflow = "hidden";
+
+  // Header section
+  const header = document.createElement("div");
+  header.style.padding = "15px";
+  header.style.backgroundColor = "#ff5722";
+  header.style.color = "white";
+  header.style.borderTopLeftRadius = "8px";
+  header.style.borderTopRightRadius = "8px";
+  header.style.textAlign = "center";
+  header.style.fontWeight = "bold";
+  header.innerHTML = "DEMO MODE: Phil's AI Assistant";
+  demoPanel.appendChild(header);
+
+  // Context section
+  const contextDiv = document.createElement("div");
+  contextDiv.id = "demoPanelContext";
+  contextDiv.style.padding = "12px";
+  contextDiv.style.borderBottom = "1px solid #ddd";
+  contextDiv.style.backgroundColor = "#333";
+  contextDiv.style.color = "white";
+  demoPanel.appendChild(contextDiv);
+
+  // Message section
+  const messageDiv = document.createElement("div");
+  messageDiv.id = "demoPanelMessage";
+  messageDiv.style.padding = "15px";
+  messageDiv.style.borderBottom = "1px solid #ddd";
+  messageDiv.style.backgroundColor = "#1976d2";
+  messageDiv.style.color = "white";
+  demoPanel.appendChild(messageDiv);
+
+  // Content area (scrollable)
+  const contentDiv = document.createElement("div");
+  contentDiv.id = "demoPanelContent";
+  contentDiv.style.padding = "15px";
+  contentDiv.style.flex = "1";
+  contentDiv.style.overflowY = "auto";
+  demoPanel.appendChild(contentDiv);
+
+  // Action area (for buttons)
+  const actionDiv = document.createElement("div");
+  actionDiv.id = "demoPanelActions";
+  actionDiv.style.padding = "15px";
+  actionDiv.style.borderTop = "1px solid #ddd";
+  actionDiv.style.backgroundColor = "#f5f5f5";
+  demoPanel.appendChild(actionDiv);
+
+  document.body.appendChild(demoPanel);
+
+  return demoPanel;
+}
+
+// Setup a right-side introduction panel
+function setupIntroPanel() {
+  // Remove any existing intro panel
+  const existingPanel = document.getElementById("demoIntroPanel");
+  if (existingPanel) existingPanel.remove();
+
+  const introPanel = document.createElement("div");
+  introPanel.id = "demoIntroPanel";
+  introPanel.style.position = "fixed";
+  introPanel.style.right = "10px";
+  introPanel.style.top = "10px";
+  introPanel.style.width = "280px";
+  introPanel.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+  introPanel.style.borderRadius = "8px";
+  introPanel.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+  introPanel.style.zIndex = "9994";
+  introPanel.style.padding = "15px";
+  introPanel.style.maxHeight = "calc(100vh - 350px)";
+  introPanel.style.overflowY = "auto";
+
+  // Add introduction content
+  introPanel.innerHTML = `
+    <h3 style="margin-top:0;margin-bottom:12px;color:#ff5722;">Context-aware Swipe Keyboard for Phil</h3>
+    <p>Phil works in tech and has MND (Motor Neuron Disease) affecting his mobility.</p>
+    <p>Currently, Phil uses a swipe keyboard on mobile phone, which is placed on his lap, to communicate with his colleagues. As a result, it requires him to look down at his phone all the time.</p>
+    <p>Since mobile phone's screen is a plain surface, it's hard for Phil to use with only his thumb. When it's used for a prolonged period, it causes discomfort and pain in his thumb, as well as neck and back pain.</p>
+    <p>It's also difficult for him to keep up with the pace of the conversation in technical meetings.</p>
+    <p>This specialized keyboard, to be used with a trackball that is ergonomically designed for Phil, allows him to participate in technical meetings with better interaction:</p>
+    <ul>
+      <li>Specialized AI term recognition</li>
+      <li>Minimal physical movement required</li>
+      <li>Keeps eyes on colleagues on the monitor</li>
+      <li>Sentence suggestion keeps pace with discussions</li>
+    </ul>
+    <p>This interface is also designed as a transition tool for Phil to use a gaze-controlled system in the future as it invites Phil to look at the screen more often.</p>
+  `;
+
+  document.body.appendChild(introPanel);
+  return introPanel;
+}
+
 // Demo state
 let demoActive = false;
 let demoInterval;
@@ -695,80 +808,82 @@ function runNextDemoScenario() {
 function showContinueButton() {
   if (!demoActive) return;
 
-  // Remove existing button if any
-  const existingButton = document.getElementById("demoContinueButton");
-  if (existingButton) existingButton.remove();
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
+
+  // Create button container
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.marginTop = "15px";
+  buttonContainer.style.marginBottom = "15px";
 
   const continueButton = document.createElement("button");
   continueButton.id = "demoContinueButton";
   continueButton.textContent = "Continue to Next Step →";
-  continueButton.style.position = "fixed";
-  continueButton.style.bottom = "80px";
-  continueButton.style.left = "50%";
-  continueButton.style.transform = "translateX(-50%)";
-  continueButton.style.padding = "12px 24px";
+  continueButton.style.padding = "10px 16px";
   continueButton.style.backgroundColor = "#4CAF50";
   continueButton.style.color = "white";
   continueButton.style.border = "none";
-  continueButton.style.borderRadius = "5px";
-  continueButton.style.fontSize = "16px";
+  continueButton.style.borderRadius = "4px";
+  continueButton.style.fontSize = "14px";
   continueButton.style.fontWeight = "bold";
   continueButton.style.cursor = "pointer";
-  continueButton.style.zIndex = "10000";
-  continueButton.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
+  continueButton.style.width = "100%";
 
-  // Pulse animation to draw attention
+  // Add pulse animation
   continueButton.style.animation = "pulse 1.5s infinite";
   const style = document.createElement("style");
   style.textContent = `
     @keyframes pulse {
-      0% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
-      100% { transform: translateX(-50%) scale(1); }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
     }
   `;
   document.head.appendChild(style);
 
-  // Add click handler to proceed to next step
+  // Add click handler
   continueButton.addEventListener("click", () => {
-    continueButton.remove();
+    buttonContainer.remove();
     demoStep = 1;
     runNextDemoScenario();
   });
 
-  document.body.appendChild(continueButton);
+  buttonContainer.appendChild(continueButton);
+  contentDiv.appendChild(buttonContainer);
+
+  // Scroll to show the button
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Create and show a next scenario button
 function showNextScenarioButton() {
   if (!demoActive) return;
 
-  // Remove existing button if any
-  const existingButton = document.getElementById("demoContinueButton");
-  if (existingButton) existingButton.remove();
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
+
+  // Create button container
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.marginTop = "15px";
+  buttonContainer.style.marginBottom = "15px";
 
   const nextButton = document.createElement("button");
-  nextButton.id = "demoContinueButton";
+  nextButton.id = "demoNextButton";
   nextButton.textContent = "Next Scenario →";
-  nextButton.style.position = "fixed";
-  nextButton.style.bottom = "80px";
-  nextButton.style.left = "50%";
-  nextButton.style.transform = "translateX(-50%)";
-  nextButton.style.padding = "12px 24px";
+  nextButton.style.padding = "10px 16px";
   nextButton.style.backgroundColor = "#2196F3";
   nextButton.style.color = "white";
   nextButton.style.border = "none";
-  nextButton.style.borderRadius = "5px";
-  nextButton.style.fontSize = "16px";
+  nextButton.style.borderRadius = "4px";
+  nextButton.style.fontSize = "14px";
   nextButton.style.fontWeight = "bold";
   nextButton.style.cursor = "pointer";
-  nextButton.style.zIndex = "10000";
-  nextButton.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
+  nextButton.style.width = "100%";
   nextButton.style.animation = "pulse 1.5s infinite";
 
-  // Add click handler to proceed to next scenario
+  // Add click handler
   nextButton.addEventListener("click", () => {
-    nextButton.remove();
+    buttonContainer.remove();
     demoStep = 0;
     currentDemoScenario++;
     if (currentDemoScenario >= demoScenarios.length) {
@@ -784,7 +899,11 @@ function showNextScenarioButton() {
     }, 1000);
   });
 
-  document.body.appendChild(nextButton);
+  buttonContainer.appendChild(nextButton);
+  contentDiv.appendChild(buttonContainer);
+
+  // Scroll to show the button
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Programmatically trigger the Clear All button
@@ -807,7 +926,6 @@ function triggerClearAll() {
 
 // Show intro for each scenario
 function showScenarioIntro(scenarioIndex) {
-  // Create a title for the current scenario
   const scenarioTitles = [
     "Neural Network Architecture",
     "Data Science Methodology",
@@ -816,47 +934,20 @@ function showScenarioIntro(scenarioIndex) {
   const title =
     scenarioTitles[scenarioIndex] || `AI Scenario ${scenarioIndex + 1}`;
 
-  // Create an overlay with the scenario info
-  const overlay = document.createElement("div");
-  overlay.id = "scenarioIntroOverlay";
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100%";
-  overlay.style.height = "100%";
-  overlay.style.backgroundColor = "rgba(0,0,0,0.7)";
-  overlay.style.display = "flex";
-  overlay.style.flexDirection = "column";
-  overlay.style.alignItems = "center";
-  overlay.style.justifyContent = "center";
-  overlay.style.zIndex = "10000";
-  overlay.style.opacity = "0";
-  overlay.style.transition = "opacity 0.5s";
+  // Update context in panel
+  const contextDiv = document.getElementById("demoPanelContext");
+  if (contextDiv) {
+    contextDiv.innerHTML = `<strong>Meeting Context:</strong><br>${meetingContexts[meetingContext]}`;
+  }
 
-  overlay.innerHTML = `
-    <div style="background-color: #fff; padding: 30px; border-radius: 10px; max-width: 80%; text-align: center;">
-      <h2 style="margin-top: 0; color: #333;">Scenario ${
-        scenarioIndex + 1
-      }: ${title}</h2>
-      <p style="font-size: 18px; margin-bottom: 10px;">Meeting Context: ${
-        meetingContexts[meetingContext]
-      }</p>
-      <p style="font-size: 16px; color: #666;">Watch how Phil can efficiently contribute to this discussion</p>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  // Fade in
-  setTimeout(() => {
-    overlay.style.opacity = "1";
-  }, 100);
-
-  // Fade out after 2.5 seconds
-  setTimeout(() => {
-    overlay.style.opacity = "0";
-    setTimeout(() => overlay.remove(), 500);
-  }, 2500);
+  // Update content in panel
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (contentDiv) {
+    contentDiv.innerHTML = `
+      <h3 style="margin-top:0;">Scenario ${scenarioIndex + 1}: ${title}</h3>
+      <p>Watch how Phil can efficiently contribute to this discussion using the swipe keyboard with specialized AI features.</p>
+    `;
+  }
 }
 
 // Clear all demo UI elements
@@ -876,26 +967,15 @@ function clearDemoUI() {
 
 // Update the clearAllDemoUIElements function to be more comprehensive
 function clearAllDemoUIElements() {
-  // List of all temporary UI element IDs that might be present
-  const elementsToRemove = [
-    "demoContinueButton",
-    "scenarioIntroOverlay",
-    "demoMessage",
-    "keyboardPointer",
-    "contextExplanation",
-    "wordContextHighlight",
-    "sentenceReasoning",
-    "demoStepExplanation",
-    "nextScenarioButton",
-  ];
+  const messageDiv = document.getElementById("demoPanelMessage");
+  const contentDiv = document.getElementById("demoPanelContent");
+  const actionDiv = document.getElementById("demoPanelActions");
 
-  // Remove each element if it exists
-  elementsToRemove.forEach((id) => {
-    const element = document.getElementById(id);
-    if (element) element.remove();
-  });
+  if (messageDiv) messageDiv.innerHTML = "";
+  if (contentDiv) contentDiv.innerHTML = "";
+  if (actionDiv) actionDiv.innerHTML = "";
 
-  // Also remove any elements with specific classes that might be lingering
+  // Still remove any elements that might be lingering outside the panels
   document.querySelectorAll(".demo-temp-element").forEach((el) => el.remove());
 
   // Clear any highlight styles from sentences
@@ -903,11 +983,14 @@ function clearAllDemoUIElements() {
     el.style.border = "";
   });
 
-  // Clear any ongoing animations or timeouts
-  const highestTimeoutId = setTimeout(() => {}, 0);
-  for (let i = 0; i < highestTimeoutId; i++) {
-    clearTimeout(i);
-  }
+  // Clear any ongoing animations or timeouts from UI interactions
+  // But don't clear the main demo flow timeouts
+  const buttons = document.querySelectorAll(
+    "#demoContinueButton, #demoNextButton"
+  );
+  buttons.forEach((btn) => {
+    if (btn.parentNode) btn.parentNode.remove();
+  });
 }
 
 // Show step-specific explanation
@@ -957,152 +1040,53 @@ function addTempElementClass(element) {
 
 // Show demo message
 function showDemoMessage(title, message) {
-  // Remove existing message if present
-  const existingMessage = document.getElementById("demoMessage");
-  if (existingMessage) existingMessage.remove();
+  const messageEl = document.getElementById("demoPanelMessage");
+  if (!messageEl) return;
 
-  // Create message element
-  const messageEl = document.createElement("div");
-  messageEl.id = "demoMessage";
-  addTempElementClass(messageEl); // Add temp class
-
-  messageEl.innerHTML = `<h4>${title}</h4><p>${message}</p>`;
-  messageEl.style.position = "fixed";
-  messageEl.style.top = "140px";
-  messageEl.style.left = "50%";
-  messageEl.style.transform = "translateX(-50%)";
-  messageEl.style.backgroundColor = "#1976d2";
-  messageEl.style.color = "white";
-  messageEl.style.padding = "15px 20px";
-  messageEl.style.borderRadius = "5px";
-  messageEl.style.zIndex = "9999";
-  messageEl.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
-  messageEl.style.textAlign = "center";
-  messageEl.style.opacity = "0";
-  messageEl.style.transition = "opacity 0.5s";
-
-  document.body.appendChild(messageEl);
-
-  // Fade in
-  setTimeout(() => {
-    messageEl.style.opacity = "1";
-  }, 100);
-
-  // Fade out after a few seconds
-  setTimeout(() => {
-    messageEl.style.opacity = "0";
-    setTimeout(() => {
-      if (messageEl.parentNode) messageEl.remove();
-    }, 500);
-  }, 4000);
+  messageEl.innerHTML = `<h4 style="margin-top:0;margin-bottom:8px;">${title}</h4>
+                         <p style="margin:0;">${message}</p>`;
 }
 
 // Similarly update other UI element creation functions
 function showKeyboardPointer(message) {
-  // Remove existing pointer if present
-  const existingPointer = document.getElementById("keyboardPointer");
-  if (existingPointer) existingPointer.remove();
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
 
-  const keyboardEl = elements.keyboard;
-  const keyboardRect = keyboardEl.getBoundingClientRect();
-
-  // Create the pointer element
-  const pointer = document.createElement("div");
-  pointer.id = "keyboardPointer";
-  addTempElementClass(pointer); // Add temp class
-
-  pointer.style.position = "fixed";
-  pointer.style.left = `${keyboardRect.left + keyboardRect.width / 2 - 100}px`;
-  pointer.style.top = `${keyboardRect.top - 70}px`;
-  pointer.style.zIndex = "9997"; // Make sure z-index is lower than other elements
-  pointer.innerHTML = `
-    <div style="background-color: #333; color: white; padding: 8px 15px; border-radius: 5px; text-align: center;">
-      ${message}
-      <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; 
-           border-top: 10px solid #333; margin: 0 auto;"></div>
+  // Append to content (don't replace)
+  contentDiv.innerHTML += `
+    <div style="margin-top:15px;padding:10px;background-color:#f0f0f0;border-left:4px solid #333;border-radius:4px;">
+      <strong>Action:</strong><br>${message}
     </div>
   `;
-  pointer.style.animation = "bounce 1.5s infinite";
 
-  // Add bounce animation
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-  `;
-  document.head.appendChild(style);
-
-  document.body.appendChild(pointer);
-
-  // Remove after a few seconds
-  setTimeout(() => {
-    if (pointer.parentNode) pointer.remove();
-  }, 5000);
+  // Scroll to bottom
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Update the showContextAwareExplanation function with improved timing management
 function showContextAwareExplanation(scenario) {
-  // First, thoroughly clear any existing UI elements
-  clearAllDemoUIElements();
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
 
-  // Now show the new message
-  showDemoMessage(
-    "STEP 2: Context-Aware Sentence Prediction",
-    "The system analyzes meeting context to suggest complete technical phrases"
+  // Get context message
+  const contextMessage = getContextSpecificExplanation(
+    meetingContexts[meetingContext],
+    scenario.selectedWord
   );
 
-  // Wait longer before showing the context explanation
-  setTimeout(() => {
-    if (!demoActive) return;
-
-    // Create context explanation
-    const contextEl = document.createElement("div");
-    contextEl.id = "contextExplanation";
-    addTempElementClass(contextEl);
-
-    contextEl.style.position = "fixed";
-    contextEl.style.top = "200px";
-    contextEl.style.left = "50%";
-    contextEl.style.transform = "translateX(-50%)";
-    contextEl.style.backgroundColor = "rgba(25, 118, 210, 0.9)";
-    contextEl.style.color = "white";
-    contextEl.style.padding = "15px 20px";
-    contextEl.style.borderRadius = "5px";
-    contextEl.style.zIndex = "9998";
-    contextEl.style.maxWidth = "600px";
-    contextEl.style.textAlign = "left";
-    contextEl.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
-
-    // Customize explanation based on current meeting context
-    const contextMessage = getContextSpecificExplanation(
-      meetingContexts[meetingContext],
-      scenario.selectedWord
-    );
-
-    contextEl.innerHTML = `
-      <div style="margin-bottom: 10px;"><strong>How Sentence Prediction Works:</strong></div>
-      <ul style="margin: 0; padding-left: 20px; line-height: 1.4;">
+  contentDiv.innerHTML += `
+    <div style="margin-top:15px;padding:12px;background-color:rgba(25, 118, 210, 0.1);border-radius:4px;border-left:4px solid #1976d2;">
+      <strong>How Sentence Prediction Works:</strong>
+      <ul style="margin-top:8px;padding-left:20px;">
         <li>Base word: <strong>${scenario.selectedWord}</strong></li>
         <li>Current meeting context: <strong>${meetingContexts[meetingContext]}</strong></li>
         <li>${contextMessage}</li>
       </ul>
-    `;
+    </div>
+  `;
 
-    document.body.appendChild(contextEl);
-
-    // Remove contextEl explicitly after a shorter time to avoid overlap
-    setTimeout(() => {
-      if (contextEl && contextEl.parentNode) {
-        contextEl.style.opacity = "0";
-        contextEl.style.transition = "opacity 0.5s";
-        setTimeout(() => {
-          if (contextEl.parentNode) contextEl.remove();
-        }, 500);
-      }
-    }, 1500); // Reduced from 6000ms to 4000ms
-  }, 3500); // Increased from 1500ms to 2000ms
+  // Scroll to bottom
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Get context-specific explanation for why sentences are suggested
@@ -1173,13 +1157,11 @@ function highlightWordAsContext(word) {
 
 // Show explanation of why this specific sentence was chosen
 function showSentenceSelectionReasoning(sentenceIndex, sentences, context) {
-  // Remove existing reasoning if present
-  const existingReasoning = document.getElementById("sentenceReasoning");
-  if (existingReasoning) existingReasoning.remove();
-
   if (!sentences || sentences.length === 0) return;
 
   const sentence = sentences[sentenceIndex];
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
 
   // Determine reason based on sentence content and context
   let reason = "";
@@ -1199,51 +1181,15 @@ function showSentenceSelectionReasoning(sentenceIndex, sentences, context) {
     reason = "Provides technical context relevant to the current discussion";
   }
 
-  // Create reasoning bubble
-  const reasoningEl = document.createElement("div");
-  reasoningEl.id = "sentenceReasoning";
-  addTempElementClass(reasoningEl); // Add temp class
-
-  // Get sentence suggestions container position
-  const sentenceSuggestionsEl = document.querySelector("#sentenceSuggestions");
-  const containerRect = sentenceSuggestionsEl.getBoundingClientRect();
-
-  reasoningEl.style.position = "fixed";
-  reasoningEl.style.left = `${containerRect.left + 20}px`;
-  reasoningEl.style.top = `${containerRect.top - 60}px`;
-  reasoningEl.style.backgroundColor = "rgba(76, 175, 80, 0.9)";
-  reasoningEl.style.color = "white";
-  reasoningEl.style.padding = "8px 15px";
-  reasoningEl.style.borderRadius = "5px";
-  reasoningEl.style.zIndex = "9996"; // Consistent z-index
-  reasoningEl.style.maxWidth = "500px";
-  reasoningEl.innerHTML = `<strong>Why this suggestion:</strong> ${reason}`;
-
-  // Add arrow pointing to sentences
-  reasoningEl.innerHTML += `
-    <div style="position:absolute; bottom:-10px; left:20px; width:0; 
-         height:0; border-left:10px solid transparent; 
-         border-right:10px solid transparent; 
-         border-top:10px solid rgba(76, 175, 80, 0.9);"></div>
+  contentDiv.innerHTML += `
+    <div style="margin-top:15px;padding:12px;background-color:rgba(76, 175, 80, 0.1);border-radius:4px;border-left:4px solid #4CAF50;">
+      <strong>Why this suggestion:</strong><br>
+      ${reason}
+    </div>
   `;
 
-  document.body.appendChild(reasoningEl);
-
-  // Highlight the specific sentence being chosen
-  const sentenceSuggestions = document.querySelectorAll(".sentence-suggestion");
-  if (sentenceSuggestions[sentenceIndex]) {
-    sentenceSuggestions[sentenceIndex].style.border = "2px dashed #4CAF50";
-  }
-
-  // Remove after a delay
-  setTimeout(() => {
-    if (reasoningEl.parentNode) reasoningEl.remove();
-
-    // Remove border from sentence
-    if (sentenceSuggestions[sentenceIndex]) {
-      sentenceSuggestions[sentenceIndex].style.border = "";
-    }
-  }, 2000);
+  // Scroll to bottom
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Start the demo mode
@@ -1279,69 +1225,34 @@ function setupDemoUI() {
   // Randomly select a meeting context
   meetingContext = Math.floor(Math.random() * meetingContexts.length);
 
-  // Create a visual indicator for demo mode
-  const demoIndicator = document.createElement("div");
-  demoIndicator.id = "demoModeIndicator";
-  demoIndicator.innerHTML = `<span>DEMO MODE: Phil's AI Engineering Assistant</span>`;
-  demoIndicator.style.position = "fixed";
-  demoIndicator.style.top = "10px";
-  demoIndicator.style.right = "10px";
-  demoIndicator.style.backgroundColor = "#ff5722";
-  demoIndicator.style.color = "white";
-  demoIndicator.style.padding = "8px 15px";
-  demoIndicator.style.borderRadius = "5px";
-  demoIndicator.style.zIndex = "9999";
-  demoIndicator.style.fontWeight = "bold";
-  demoIndicator.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
-  document.body.appendChild(demoIndicator);
+  // Setup the demo panel on the left
+  setupDemoPanel();
 
-  // Add context banner
-  const contextBanner = document.createElement("div");
-  contextBanner.id = "demoContextBanner";
-  contextBanner.innerHTML = `<strong>Meeting Context:</strong> ${meetingContexts[meetingContext]}`;
-  contextBanner.style.position = "fixed";
-  contextBanner.style.top = "60px";
-  contextBanner.style.left = "50%";
-  contextBanner.style.transform = "translateX(-50%)";
-  contextBanner.style.backgroundColor = "#333";
-  contextBanner.style.color = "white";
-  contextBanner.style.padding = "10px 20px";
-  contextBanner.style.borderRadius = "5px";
-  contextBanner.style.zIndex = "9999";
-  contextBanner.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
-  document.body.appendChild(contextBanner);
+  // Don't create a new intro panel - just ensure it exists
+  if (!document.getElementById("demoIntroPanel")) {
+    setupIntroPanel();
+  }
 
-  // Add explanatory text
-  const demoExplanation = document.createElement("div");
-  demoExplanation.id = "demoExplanation";
-  demoExplanation.innerHTML = `
-    <h3>Demo: AI Terminology Swipe Keyboard for Phil</h3>
-    <p>Phil works in tech and MND (Motor Neuron Disease) affects his mobility.</p>
-    <p>Currently, Phil use a swipe keyboard on mobile phone to interact with colleagues.</p>
-    <p>The phone is placed on his lap and he has to focus on his mobile and he cannot look at his colleagues on screen (vice versa).</p>
-    <p>The plain swipe keyboard is not designed ergonomically for use with just his thumb. After a prolonged period, Phil feels tired.</p>
-    <p>We have developed a on-screen keyboard and a trackball so that Phil can use with his thumb.</p>
-    <p>Moving from a small mobile mobile screen to a larger screen with a trackball will be a big improvement for Phil in terms of gesture of his neck, as well as prepare him for AAC (Augmentative and Alternative Communication) devices.</p>
-    <p>This keyboard allows him to participate in technical meetings with better interaction:</p>
-    <ul>
-      <li>Specialized AI term recognition</li>
-      <li>Minimal physical movement required</li>
-      <li>Keeps eyes on colleagues instead of on-screen mobile keyboard</li>
-      <li>Sentence suggestion keeps pace with discussions</li>
-    </ul>
-  `;
-  demoExplanation.style.position = "fixed";
-  demoExplanation.style.top = "110px";
-  demoExplanation.style.right = "10px";
-  demoExplanation.style.width = "300px";
-  demoExplanation.style.backgroundColor = "#fff";
-  demoExplanation.style.color = "#333";
-  demoExplanation.style.padding = "15px";
-  demoExplanation.style.borderRadius = "5px";
-  demoExplanation.style.zIndex = "9999";
-  demoExplanation.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
-  demoExplanation.style.lineHeight = "1.4";
-  document.body.appendChild(demoExplanation);
+  // Update context in panel
+  const contextDiv = document.getElementById("demoPanelContext");
+  if (contextDiv) {
+    contextDiv.innerHTML = `<strong>Meeting Context:</strong><br>${meetingContexts[meetingContext]}`;
+  }
+
+  // Update content in panel with task information
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (contentDiv) {
+    contentDiv.innerHTML = `
+      <h3 style="margin-top:0;">Demo Instructions</h3>
+      <p>This demonstration will show how Phil uses the keyboard during technical meetings:</p>
+      <ol>
+        <li>Word prediction from swipe patterns</li>
+        <li>Sentence suggestions based on context</li>
+        <li>Backspace functionality</li>
+      </ol>
+      <p>Follow along with each step shown in this panel.</p>
+    `;
+  }
 }
 
 // Stop the demo mode
@@ -1351,19 +1262,9 @@ function stopDemoMode() {
   demoActive = false;
   clearTimeout(demoInterval); // Clear any pending timeouts
 
-  // Remove UI elements
-  const elementsToRemove = [
-    "demoModeIndicator",
-    "demoExplanation",
-    "demoContextBanner",
-    "demoStepExplanation",
-    "demoMessage",
-  ];
-
-  elementsToRemove.forEach((id) => {
-    const element = document.getElementById(id);
-    if (element) element.remove();
-  });
+  // Remove only the left demo panel
+  const demoPanel = document.getElementById("demoLeftPanel");
+  if (demoPanel) demoPanel.remove();
 
   // Reset UI state
   elements.captureToggle.textContent = "Start Capturing";
@@ -1390,14 +1291,23 @@ function showBackspaceDemo() {
   clearPath();
   elements.selectedWordsContainer.textContent = "Neural network architecture";
 
-  // Show explanation
+  // Show explanation in panel
   showDemoMessage(
     "Backspace Demo",
     "Watch how the backspace key can be used to delete words"
   );
 
-  // Point to the backspace key
-  showKeyboardPointer("Press backspace to delete words");
+  // Update content in panel
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (contentDiv) {
+    contentDiv.innerHTML = `
+      <h3 style="margin-top:0;">Backspace Feature</h3>
+      <p>The backspace function allows Phil to quickly delete the last word entered.</p>
+      <div style="margin-top:15px;padding:10px;background-color:#f0f0f0;border-left:4px solid #333;border-radius:4px;">
+        <strong>Action:</strong><br>Press backspace to delete words
+      </div>
+    `;
+  }
 
   // After a delay, simulate pressing the backspace key
   setTimeout(() => {
@@ -1417,21 +1327,24 @@ function showBackspaceDemo() {
       setTimeout(() => {
         backspaceKey.classList.remove("active");
 
-        // Show completion message
-        setTimeout(() => {
-          showDemoMessage(
-            "Demo Complete",
-            "All features have been demonstrated"
-          );
+        // Update content to show completion
+        if (contentDiv) {
+          contentDiv.innerHTML += `
+            <div style="margin-top:15px;padding:10px;background-color:rgba(76, 175, 80, 0.1);border-radius:4px;border-left:4px solid #4CAF50;">
+              <strong>Demo Complete!</strong><br>
+              All features have been demonstrated
+            </div>
+          `;
+          contentDiv.scrollTop = contentDiv.scrollHeight;
+        }
 
-          // End the demo after a delay
-          setTimeout(() => {
-            stopDemoMode();
-          }, 3000);
-        }, 1000);
+        // End the demo after a delay
+        setTimeout(() => {
+          stopDemoMode();
+        }, 3000);
       }, 500);
     }
   }, 3000);
 }
 
-export { startDemoMode, stopDemoMode, toggleDemoMode };
+export { startDemoMode, stopDemoMode, toggleDemoMode, setupIntroPanel };
