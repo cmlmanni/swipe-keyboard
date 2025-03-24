@@ -86,31 +86,63 @@ function setupIntroPanel() {
   introPanel.style.right = "10px";
   introPanel.style.top = "10px";
   introPanel.style.width = "280px";
+  introPanel.style.height = "calc(100vh - 20px)"; // Match left panel height
   introPanel.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
   introPanel.style.borderRadius = "8px";
   introPanel.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
   introPanel.style.zIndex = "9994";
-  introPanel.style.padding = "15px";
-  introPanel.style.maxHeight = "calc(100vh - 350px)";
-  introPanel.style.overflowY = "auto";
+  introPanel.style.display = "flex";
+  introPanel.style.flexDirection = "column";
+  introPanel.style.overflow = "hidden";
 
-  // Add introduction content
-  introPanel.innerHTML = `
-    <h3 style="margin-top:0;margin-bottom:12px;color:#ff5722;">Context-aware Swipe Keyboard for Phil</h3>
+  // Header section like the left panel
+  const header = document.createElement("div");
+  header.style.padding = "15px";
+  header.style.backgroundColor = "#ff5722";
+  header.style.color = "white";
+  header.style.borderTopLeftRadius = "8px";
+  header.style.borderTopRightRadius = "8px";
+  header.style.textAlign = "center";
+  header.style.fontWeight = "bold";
+  header.innerHTML = "Context-aware Swipe Keyboard for Phil";
+  introPanel.appendChild(header);
+
+  // Content area (scrollable)
+  const contentDiv = document.createElement("div");
+  contentDiv.style.padding = "15px";
+  contentDiv.style.flex = "1";
+  contentDiv.style.overflowY = "auto";
+
+  // Add introduction content to the scrollable area
+  contentDiv.innerHTML = `
     <p>Phil works in tech and has MND (Motor Neuron Disease) affecting his mobility.</p>
     <p>Currently, Phil uses a swipe keyboard on mobile phone, which is placed on his lap, to communicate with his colleagues. As a result, it requires him to look down at his phone all the time.</p>
     <p>Since mobile phone's screen is a plain surface, it's hard for Phil to use with only his thumb. When it's used for a prolonged period, it causes discomfort and pain in his thumb, as well as neck and back pain.</p>
     <p>It's also difficult for him to keep up with the pace of the conversation in technical meetings.</p>
-    <p>This specialized keyboard, to be used with a trackball that is ergonomically designed for Phil, allows him to participate in technical meetings with better interaction:</p>
-    <p>It is also linked to ElevenLabs' API to provide customised text-to-speech services.</p>
-    <ul>
-      <li>Specialized AI term recognition</li>
-      <li>Minimal physical movement required</li>
-      <li>Keeps eyes on colleagues on the monitor</li>
-      <li>Sentence suggestion keeps pace with discussions</li>
-    </ul>
+    <p><strong>This specialized keyboard</strong>, to be used with a trackball that is ergonomically designed for Phil, allows him to participate in technical meetings with better interaction:</p>
+    <div style="background-color: #f5f5f5; padding: 12px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ff5722;">
+      <p style="margin-top: 0;"><strong>Key Features:</strong></p>
+      <ul style="margin-bottom: 0;">
+        <li>Specialized AI term recognition</li>
+        <li>Minimal physical movement required</li>
+        <li>Keeps eyes on colleagues on the monitor</li>
+        <li>Sentence suggestion keeps pace with discussions</li>
+        <li>ElevenLabs' text-to-speech integration</li>
+      </ul>
+    </div>
     <p>This interface is also designed as a transition tool for Phil to use a gaze-controlled system in the future as it invites Phil to look at the screen more often.</p>
+    
   `;
+  // <div style="background-color: #e8f4fd; padding: 12px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #007acc;">
+  //   <p style="margin-top: 0;"><strong>How to use this demo:</strong></p>
+  //   <ol>
+  //     <li>Click "Start Demo Mode" to begin the demonstration</li>
+  //     <li>Watch how the system handles swipe patterns</li>
+  //     <li>See how AI suggestions adapt to meeting context</li>
+  //     <li>Observe the streamlined workflow for MND users</li>
+  //   </ol>
+  // </div>
+  introPanel.appendChild(contentDiv);
 
   document.body.appendChild(introPanel);
   return introPanel;
@@ -955,6 +987,49 @@ function showScenarioIntro(scenarioIndex) {
       <p>Watch how Phil can efficiently contribute to this discussion using the swipe keyboard with specialized AI features.</p>
     `;
   }
+
+  addDemoRationale(scenarioIndex);
+}
+
+// Add MND-specific rationale to the left panel
+function addDemoRationale(scenarioIndex) {
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
+
+  // Different rationales for each scenario
+  const rationales = [
+    // Neural Network scenario
+    `<div style="margin-top:15px; padding:12px; background-color:#f9f2e7; border-radius:4px; border-left:4px solid #ff9800;">
+      <strong>Why This Matters for Phil:</strong><br>
+      Neural networks are common topics in Phil's technical meetings. With MND affecting his mobility, 
+      typing complete technical terms requires significant physical effort. This swipe pattern recognition 
+      reduces strain on his thumb while allowing him to use precise terminology without looking down at his phone.
+    </div>`,
+
+    // Data Science scenario
+    `<div style="margin-top:15px; padding:12px; background-color:#f9f2e7; border-radius:4px; border-left:4px solid #ff9800;">
+      <strong>Why This Matters for Phil:</strong><br>
+      Data science discussions require precise terminology. Due to MND, Phil experiences fatigue when 
+      typing for extended periods. This feature allows him to join technical discussions with minimal 
+      physical movement, preventing discomfort in his thumb while maintaining professional communication.
+    </div>`,
+  ];
+
+  // Get the appropriate rationale, default to general one if index not found
+  const rationale =
+    rationales[scenarioIndex] ||
+    `<div style="margin-top:15px; padding:12px; background-color:#f9f2e7; border-radius:4px; border-left:4px solid #ff9800;">
+      <strong>Why This Matters for Phil:</strong><br>
+      With MND affecting Phil's mobility, every movement requires effort. This specialized keyboard minimizes 
+      the physical strain of communication, allowing him to participate fully in technical meetings without 
+      the fatigue that comes from typical mobile swipe keyboards.
+    </div>`;
+
+  // Add the rationale to the existing content
+  contentDiv.innerHTML += rationale;
+
+  // Scroll to show the new content
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 // Clear all demo UI elements
@@ -1195,7 +1270,49 @@ function showSentenceSelectionReasoning(sentenceIndex, sentences, context) {
     </div>
   `;
 
+  if (sentences && sentences.length > sentenceIndex) {
+    addSentenceAccessibilityBenefits(sentences[sentenceIndex]);
+  }
+
   // Scroll to bottom
+  contentDiv.scrollTop = contentDiv.scrollHeight;
+}
+
+// Enhanced function to add accessibility benefits
+function addSentenceAccessibilityBenefits(sentence) {
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
+
+  // Determine accessibility benefit based on sentence content
+  let accessibilityBenefit;
+  if (sentence.length > 40) {
+    accessibilityBenefit =
+      "Saves significant physical effort by replacing multiple swipes with a single selection";
+  } else if (
+    sentence.includes("neural network") ||
+    sentence.includes("data science")
+  ) {
+    accessibilityBenefit =
+      "Provides domain-specific terminology that might be physically challenging to input letter-by-letter";
+  } else if (sentence.includes("needs") || sentence.includes("requires")) {
+    accessibilityBenefit =
+      "Reduces repetitive movements when making requests in meetings";
+  } else {
+    accessibilityBenefit =
+      "Reduces the need for repetitive movements, helping prevent thumb and wrist fatigue";
+  }
+
+  const benefitHtml = `
+    <div style="margin-top:15px; padding:12px; background-color:#f0f7ff; border-radius:4px; border-left:4px solid #673ab7;">
+      <strong>Accessibility Benefit for Phil:</strong><br>
+      ${accessibilityBenefit}
+    </div>
+  `;
+
+  // Add to content
+  contentDiv.innerHTML += benefitHtml;
+
+  // Scroll to show the new content
   contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
@@ -1314,6 +1431,8 @@ function showBackspaceDemo() {
         <strong>Action:</strong><br>Press backspace to delete words
       </div>
     `;
+
+    addBackspaceRationale();
   }
 
   // After a delay, simulate pressing the backspace key
@@ -1352,6 +1471,27 @@ function showBackspaceDemo() {
       }, 500);
     }
   }, 3000);
+}
+
+// Enhanced function to add backspace accessibility rationale
+function addBackspaceRationale() {
+  const contentDiv = document.getElementById("demoPanelContent");
+  if (!contentDiv) return;
+
+  const rationale = `
+    <div style="margin-top:15px; padding:12px; background-color:#f9f2e7; border-radius:4px; border-left:4px solid #ff9800;">
+      <strong>Why This Matters for Phil:</strong><br>
+      Error correction is essential for users with MND. The large backspace button allows Phil to 
+      easily correct mistakes without precise movements, reducing frustration and saving energy 
+      during longer technical discussions.
+    </div>
+  `;
+
+  // Add to content
+  contentDiv.innerHTML += rationale;
+
+  // Scroll to show the new content
+  contentDiv.scrollTop = contentDiv.scrollHeight;
 }
 
 export { startDemoMode, stopDemoMode, toggleDemoMode, setupIntroPanel };
