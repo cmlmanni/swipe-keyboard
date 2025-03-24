@@ -102,6 +102,7 @@ function setupIntroPanel() {
     <p>Since mobile phone's screen is a plain surface, it's hard for Phil to use with only his thumb. When it's used for a prolonged period, it causes discomfort and pain in his thumb, as well as neck and back pain.</p>
     <p>It's also difficult for him to keep up with the pace of the conversation in technical meetings.</p>
     <p>This specialized keyboard, to be used with a trackball that is ergonomically designed for Phil, allows him to participate in technical meetings with better interaction:</p>
+    <p>It is also linked to ElevenLabs' API to provide customised text-to-speech services.</p>
     <ul>
       <li>Specialized AI term recognition</li>
       <li>Minimal physical movement required</li>
