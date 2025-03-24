@@ -156,6 +156,7 @@ let demoPhrase = "";
 let demoStep = 0; // Track which step of the demo we're on
 let demoMode = "word"; // "word" or "sentence"
 let meetingContext = 0; // To track which meeting context we're in
+let singleDemoMode = false; // Track if we're replaying just a single demo
 
 // AI engineering meeting contexts to make demo more realistic
 const meetingContexts = [
@@ -717,23 +718,16 @@ function runNextDemoScenario() {
           setTimeout(() => {
             if (currentDemoScenario === 0) {
               showContinueButton();
-            } else if (scenario.useSentence) {
-              // Auto-advance to step 2 for other scenarios after 3 seconds
+            } else if (!singleDemoMode || scenario.useSentence) {
+              // Only advance to step 2 if not in single demo mode or if this scenario has a sentence component
               demoStep = 1;
               setTimeout(() => {
                 if (demoActive) runNextDemoScenario();
               }, 3000);
             } else {
-              // Move to next scenario if no sentence prediction
+              // In single demo mode without sentence component, stop here and show replay controls
               setTimeout(() => {
-                currentDemoScenario++;
-                if (currentDemoScenario >= demoScenarios.length) {
-                  // We've shown all scenarios, now show backspace demo
-                  showBackspaceDemo();
-                  return; // Exit the current demo loop
-                }
-                demoStep = 0;
-                if (demoActive) runNextDemoScenario();
+                setupDemoReplayControls();
               }, 3000);
             }
           }, 3000);
@@ -794,8 +788,11 @@ function runNextDemoScenario() {
                         setTimeout(() => {
                           if (currentDemoScenario === 0) {
                             showNextScenarioButton();
+                          } else if (singleDemoMode) {
+                            // In single demo mode, stop here and show replay controls
+                            setupDemoReplayControls();
                           } else {
-                            // Auto-advance to next scenario
+                            // Regular mode - advance to next scenario
                             demoStep = 0;
                             currentDemoScenario++;
                             if (currentDemoScenario >= demoScenarios.length) {
@@ -825,8 +822,11 @@ function runNextDemoScenario() {
         // Skip to next scenario for scenarios without sentence prediction
         if (currentDemoScenario === 0) {
           showNextScenarioButton();
+        } else if (singleDemoMode) {
+          // In single demo mode, stop here and show replay controls
+          setupDemoReplayControls();
         } else {
-          // Auto-advance to next scenario
+          // Regular mode - advance to next scenario
           demoStep = 0;
           currentDemoScenario++;
           if (currentDemoScenario >= demoScenarios.length) {
@@ -1352,6 +1352,10 @@ function setupDemoUI() {
   // Setup the demo panel on the left
   setupDemoPanel();
 
+  // Clear the action area at demo start (no replay buttons yet)
+  const actionDiv = document.getElementById("demoPanelActions");
+  if (actionDiv) actionDiv.innerHTML = "";
+
   // Don't create a new intro panel - just ensure it exists
   if (!document.getElementById("demoIntroPanel")) {
     setupIntroPanel();
@@ -1464,10 +1468,11 @@ function showBackspaceDemo() {
           contentDiv.scrollTop = contentDiv.scrollHeight;
         }
 
-        // End the demo after a delay
-        setTimeout(() => {
-          stopDemoMode();
-        }, 3000);
+        // Add replay controls to the action area
+        setupDemoReplayControls();
+
+        // Don't end the demo automatically so user can replay
+        // Instead, leave the replay controls available
       }, 500);
     }
   }, 3000);
@@ -1492,6 +1497,119 @@ function addBackspaceRationale() {
 
   // Scroll to show the new content
   contentDiv.scrollTop = contentDiv.scrollHeight;
+}
+
+// Add demo replay controls to the action area
+function setupDemoReplayControls() {
+  const actionDiv = document.getElementById("demoPanelActions");
+  if (!actionDiv) return;
+
+  // Clear any existing buttons
+  actionDiv.innerHTML = "";
+
+  // Create container for grid layout
+  const buttonGrid = document.createElement("div");
+  buttonGrid.style.display = "grid";
+  buttonGrid.style.gridTemplateColumns = "1fr 1fr";
+  buttonGrid.style.gap = "8px";
+
+  // Create header for the replay controls
+  const header = document.createElement("div");
+  header.style.gridColumn = "1 / span 2";
+  header.style.textAlign = "center";
+  header.style.fontWeight = "bold";
+  header.style.marginBottom = "8px";
+  header.textContent = "Replay Demos";
+  buttonGrid.appendChild(header);
+
+  // Define the replay buttons
+  const replayButtons = [
+    {
+      text: "Neural Network Demo",
+      color: "#3f51b5",
+      action: () => {
+        resetDemoAndStart(0, true); // Set single demo mode to true
+      },
+    },
+    {
+      text: "Data Science Demo",
+      color: "#673ab7",
+      action: () => {
+        resetDemoAndStart(1, true); // Set single demo mode to true
+      },
+    },
+    {
+      text: "Backspace Demo",
+      color: "#009688",
+      action: () => {
+        // Directly show backspace demo
+        showBackspaceDemo();
+      },
+    },
+    {
+      text: "Restart All Demos",
+      color: "#4CAF50",
+      action: () => {
+        resetDemoAndStart(0, false); // Set single demo mode to false
+      },
+    },
+  ];
+
+  // Create and add buttons
+  replayButtons.forEach((config) => {
+    const button = document.createElement("button");
+    button.textContent = config.text;
+    button.style.padding = "10px 0";
+    button.style.backgroundColor = config.color;
+    button.style.color = "white";
+    button.style.border = "none";
+    button.style.borderRadius = "4px";
+    button.style.cursor = "pointer";
+    button.style.fontWeight = "bold";
+    button.style.fontSize = "12px";
+
+    // Add hover effect
+    button.onmouseover = () => {
+      button.style.opacity = "0.9";
+      button.style.transform = "translateY(-2px)";
+      button.style.transition = "all 0.2s ease";
+    };
+    button.onmouseout = () => {
+      button.style.opacity = "1";
+      button.style.transform = "translateY(0)";
+      button.style.transition = "all 0.2s ease";
+    };
+
+    // Add click handler
+    button.addEventListener("click", config.action);
+
+    // Add to grid
+    buttonGrid.appendChild(button);
+  });
+
+  // Add button grid to action area
+  actionDiv.appendChild(buttonGrid);
+}
+
+// Helper function to reset and start demo at a specific scenario
+function resetDemoAndStart(scenarioIndex = 0, singleDemo = false) {
+  // Reset all demo state
+  demoStep = 0;
+  currentDemoScenario = scenarioIndex || 0;
+
+  // Set single demo mode flag
+  singleDemoMode = singleDemo;
+
+  // Clear UI
+  clearDemoUI();
+
+  // If not already active, activate demo mode
+  if (!demoActive) {
+    startDemoMode();
+  } else {
+    // If already active, just run the next scenario
+    runNextDemoScenario();
+  }
 }
 
 export { startDemoMode, stopDemoMode, toggleDemoMode, setupIntroPanel };
